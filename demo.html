@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>originEvents.js Demo</title>
+    <style>
+      body {
+        background: #eee;
+      }
+
+      button {
+        display:block;
+        height:30px;
+        width:90px;
+        margin: 3px;
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+        -webkit-appearance: button;
+        border: 0px;
+      }
+
+      .boom {
+        background-color: #428bca;
+        color: #fff;
+      }
+
+      .boom:hover {
+        background-color: #3972A3;
+      }
+
+      .bang {
+        background-color: #3BAF3F;
+        color: #fff;
+      }
+
+      .bang:hover {
+        background-color: #328F35;
+      }
+
+      .bing {
+        color: #fff;
+        background-color: #CA4242;
+      }
+
+      .bing:hover {
+        background-color: #A53D3D;
+      }
+
+      .output_lineitem {
+        font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+        color: #333;
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      header {
+        float:left;
+        width:270px;
+        position:fixed;
+      }
+
+      #output {
+        float:right;
+        width: 480px;
+        padding-top: 4px;
+      }
+
+      .wrapper {
+        width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <button id="boom" class="boom">Boom!</button>
+        <button id="bang" class="bang">Bang!</button>
+        <button id="bing" class="bing">Bing!</button>
+      </header>
+
+      <div id="output"></div>
+    </div>
+
+    <script src="js/jquery-2.0.2.min.js"></script>
+    <script src="js/uuid.modified.js"></script>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/snorkel.js"></script>
+    <script src="js/originEvents.js"></script>
+    <script>
+      // add listener
+      originEvents.on(function(isLocal){
+        outputEvent(this.type, this.datetime, isLocal);
+      });
+
+      // trigger event
+      function triggerCustomEvent(eventName){
+        originEvents.trigger(eventName);
+      }
+
+      $('#boom').on('click', function () { triggerCustomEvent('boom')});
+      $('#bang').on('click', function () { triggerCustomEvent('bang')});
+      $('#bing').on('click', function () { triggerCustomEvent('bing')});
+
+      function outputEvent(type, datetime, isLocal) {
+        type = '<span class="' + type + '" style="border-radius: 2px;padding:2px 4px;">' + type + '</span>';
+        $('<div class="output_lineitem">' + (isLocal ? 'Local&nbsp;&nbsp;' : 'Remote&nbsp;') + type  + ' at ' + padNumber(datetime.getHours()) + ':' + padNumber(datetime.getMinutes()) + ':' + padNumber(datetime.getSeconds()) + '</div>').prependTo($('#output')).delay(10000).hide('fade');
+      }
+
+      function padNumber(num) {
+        return (num < 10 ? '0' : '') + num;
+      }
+    </script>
+  </body>
+</html>
