@@ -10,10 +10,7 @@
 	var handler;
 
 	window.addEventListener('storage', function(e) {
-		if (handler && e.newValue !== null && re.test(e.key)) {
-			// console.log('originEvents (different window):', e.key, snorkel.decodeValue(e.newValue));
-			console.log('oldValue', e.oldValue);
-			console.log('newValue', e.newValue);
+		if (handler && e.newValue && re.test(e.key)) {   // checking for "e.newValue" instead of "e.newValue !== null" because IE uses "" instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 			handler.call(snorkel.decodeValue(e.newValue), false);
 		}
 	}, false);
