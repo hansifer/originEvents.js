@@ -48,7 +48,7 @@ a small {
 }
 
 .wrapper {
-  width:1005px;
+  width:900px;
   xmargin:0 auto;
 }
 
@@ -164,7 +164,7 @@ header ul a strong {
 }
 
 section {
-  width:683px;
+  width:593px;
   float:right;
   padding-bottom:7px;
   padding-top:8px;
@@ -196,13 +196,13 @@ iframe {
   border: 0px solid #CCC;
   position: absolute;
   top: 92px;
-  left: 27px;
+  left: 29px;
 }
 
 .demoDiv {
   position: relative;
   height:320px;
-  width: 708px;
+  width: 615px;
   margin-left:0px;
 }
 
@@ -215,7 +215,7 @@ iframe {
 }
 
 section > * {
-  margin-left:20px;
+  margin-left:23px;
 }
 
 @media print, screen and (max-width: 960px) {
