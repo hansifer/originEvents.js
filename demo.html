@@ -99,6 +99,7 @@
     <script>
       // add listener
       originEvents.on(function(isLocal){
+        console.log(this);
         outputEvent(this.type, this.datetime, isLocal);
       });
 
