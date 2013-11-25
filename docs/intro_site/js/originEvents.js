@@ -1,4 +1,8 @@
 (function(undefined) {
+	function escapeRegExp(iStr) {
+		return iStr.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	}
+
 	var count = 0;
 	var baseKeyName = 'originEvents.nooxis.com.';
 	var windowKeyName = baseKeyName + uuid.v4() + '.';
@@ -38,10 +42,6 @@
 			handler = null;
 		}
 	};
-
-	function escapeRegExp(iStr) {
-		return iStr.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-	}
 
 	window.originEvents = originEvents;
 }).call(this);
