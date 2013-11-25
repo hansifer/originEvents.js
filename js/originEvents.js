@@ -38,40 +38,42 @@
 	snorkel.on(localStorageEventHandler, re);
 	global.addEventListener('storage', remoteStorageEventHandler, false);
 
-	var originEvents = {
-		on: function(iType, iHandler) {
-			if (!(iType in listeners)) {
-				listeners[iType] = [];
-			}
-
-			if (!_.contains(listeners[iType], iHandler)) {
-				listeners[iType].push(iHandler);
-			}
-		},
-		off: function(iType, iHandler) {
-			if (iType in listeners) {
-				if (iHandler) {
-					listeners[iType].splice(listeners[iType].indexOf(iHandler), 1);
-				} else {
-					delete listeners[iType];
-				}
-			}
-		},
-		trigger: function(iType, iMessage) {
-			if (triggerEnabled) {
-				snorkel.set(windowKeyName + (count++), {
-					// count: ++count,
-					datetime: new Date(),
-					type: iType,
-					message: iMessage
-				});
-			}
-		}
-	};
+	var originEvents = {};
 
 	originEvents.triggerEnabled = true;
 	originEvents.localListenerEnabled = true;
 	originEvents.remoteListenerEnabled = true;
+
+	originEvents.on = function(iType, iHandler) {
+		if (!(iType in listeners)) {
+			listeners[iType] = [];
+		}
+
+		if (!_.contains(listeners[iType], iHandler)) {
+			listeners[iType].push(iHandler);
+		}
+	};
+
+	originEvents.off = function(iType, iHandler) {
+		if (iType in listeners) {
+			if (iHandler) {
+				listeners[iType].splice(listeners[iType].indexOf(iHandler), 1);
+			} else {
+				delete listeners[iType];
+			}
+		}
+	};
+
+	originEvents.trigger = function(iType, iMessage) {
+		if (originEvents.triggerEnabled) {
+			snorkel.set(windowKeyName + (count++), {
+				// count: ++count,
+				datetime: new Date(),
+				type: iType,
+				message: iMessage
+			});
+		}
+	};
 
 	global.originEvents = originEvents;
 }).call(this);
