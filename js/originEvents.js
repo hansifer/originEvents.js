@@ -12,6 +12,7 @@
 	window.addEventListener('storage', function(e) {
 		if (handler && e.newValue !== null && re.test(e.key)) {
 			// console.log('originEvents (different window):', e.key, snorkel.decodeValue(e.newValue));
+			console.log('storage', snorkel.decodeValue(e.newValue), e.newValue);
 			handler.call(snorkel.decodeValue(e.newValue), false);
 		}
 	}, false);
@@ -19,6 +20,7 @@
 	snorkel.on(function(e, k, v) {
 		if (handler && (e === 'updated' || e === 'added')) {
 			// console.log('originEvents (same window):', k, v);
+			console.log('snorkel',v);
 			handler.call(v, true);
 			snorkel.remove(k);
 		}
