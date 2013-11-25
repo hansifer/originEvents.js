@@ -14,9 +14,13 @@
 	var listeners = {};
 
 	var remoteStorageEventHandler = function(e) {
+		// IE fires "storage" event locally as well (against spec), so we need to filter for remote events
+		if (e.key.substring(0, windowKeyName.length) === windowKeyName) {
+			return;
+		}
+
 		// checking for "e.newValue" instead of "e.newValue !== null" because IE uses "" instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 		if (e.newValue && re.test(e.key)) {
-			console.log(e.key, e.target === global, e.currentTarget === global, e.storageArea === global.localStorage);
 			emit(snorkel.decodeValue(e.newValue), false);
 		}
 	};
