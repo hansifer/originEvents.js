@@ -12,7 +12,8 @@
 	window.addEventListener('storage', function(e) {
 		if (handler && e.newValue !== null && re.test(e.key)) {
 			// console.log('originEvents (different window):', e.key, snorkel.decodeValue(e.newValue));
-			console.log('storage', e.newValue, e.oldValue, e.key, e, e.url);
+			console.log('oldValue', e.oldValue);
+			console.log('newValue', e.newValue);
 			handler.call(snorkel.decodeValue(e.newValue), false);
 		}
 	}, false);
