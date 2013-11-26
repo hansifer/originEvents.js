@@ -17,42 +17,42 @@ In a nutshell, originEvents.js dispatches events by setting a temporary localSto
 API
 ---
 
-###on(```string``` *eventType*, ```function``` *handler*)
+###on (```string``` *eventType*, ```function``` *handler*)
 Adds a listener for locally and remotely-triggered events of type eventType.
 ```js
 originEvents.on('registration_complete',
    function (isLocal) { alert('Thanks for signing up, ' + this.message.username); });
 ```
-###off(```string``` *eventType* [, ```function``` *handler*])
+###off (```string``` *eventType* [, ```function``` *handler*])
 Removes a single or all listeners for locally and remotely-triggered events of type eventType.
 ```js
 originEvents.off('registration_complete', someFunctionName);
 originEvents.off('registration_complete');
 ```
-###trigger(```string``` *eventType* [, ```any``` *message*])
-Triggers an event of type eventType.
+###trigger (```string``` *eventType* [, ```any``` *message*])
+Triggers an event of type eventType, passing message.
 ```js
 originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
-###triggerEnabled([```boolean``` *enabled*])
+###triggerEnabled ([```boolean``` *enabled*])
 Gets or sets whether originEvents.js dispatches events.
 ```js
 originEvents.triggerEnabled(false);  // prevent originEvents from being raised
 originEvents.triggerEnabled();       // returns false
 ```
-###localListenerEnabled([```boolean``` *enabled*])
+###localListenerEnabled ([```boolean``` *enabled*])
 Gets or sets whether originEvents.js allows locally-triggered events to be handled.
 ```js
 originEvents.localListenerEnabled(false);  // prevent locally-triggered events from being handled
 originEvents.localListenerEnabled();       // returns false
 ```
-###remoteListenerEnabled([```boolean``` *enabled*])
+###remoteListenerEnabled ([```boolean``` *enabled*])
 Gets or sets whether originEvents.js allows remotely-triggered events to be handled.
 ```js
 originEvents.remoteListenerEnabled(false);  // prevent remotely-triggered events from being handled
 originEvents.remoteListenerEnabled();       // returns false
 ```
-<nowiki>*</nowiki> ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested oject/arry of such.
+<nowiki>*</nowiki>&nbsp;&nbsp;  ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested object/array of such.
 
 Technical Notes
 ---
