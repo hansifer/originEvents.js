@@ -7,6 +7,8 @@ Introduction
 
 originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same browser instance to trigger and handle custom events within and across each other. [Visit the demo page](http://hansifer.github.io/originEvents.js/).
 
+originEvents.js was initially created as a proof-of-concept for a [snorkel.js](http://hansifer.github.io/snorkel.js/) feature. Critical feedback, ideas, and pull requests are welcome.
+
 How Does It Work?
 ---
 
