@@ -17,6 +17,31 @@ In a nutshell, originEvents.js dispatches events by setting a temporary localSto
 API
 ---
 
+###on(eventType ```string```, handler ```function```)
+Adds a listener for locally and remotely-triggered events of type eventType.
+```js
+originEvents.on('registration_complete',
+   function (isLocal) { alert('Thanks for signing up, ' + this.message.username); });
+```
+###off(eventType ```string```[, handler ```function```])
+Remmoves a single or all listeners for locally and remotely-triggered events of type eventType.
+```js
+originEvents.off('registration_complete', someFunctionName);
+originEvents.off('registration_complete');
+```
+###trigger(eventType ```string```[, message ```any```])
+Triggers an event of type eventType.
+```js
+originEvents.off('registration_complete', someFunctionName);
+originEvents.off('registration_complete');
+```
+
+###triggerEnabled(enabled)
+###localListenerEnabled(enabled)
+###remoteListenerEnabled(enabled)
+
+<nowiki>*</nowiki> ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested oject/arry of such.
+
 Technical Notes
 ---
 
