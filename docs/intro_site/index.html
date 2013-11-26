@@ -32,16 +32,31 @@
 
         <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Introduction</h3>
         
-        <p>originEvents.js is a tiny JavaScript library that allows same-origin web pages running within the same browser instance to trigger and handle custom events within and across each other.</p>
+        <p>originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same browser instance to trigger and handle custom events within and across each other.</p>
         
-        <p style="margin-bottom:6px;"><strong>demo.html</strong> is running in 2 individual iframes below. Click on the buttons to fire events from either page. You can also <a href="demo.html" target="_blank">open demo.html</a> into multiple tabs in your browser for a more convincing demonstration.</p>
+        <p style="margin-bottom:6px;"><strong>demo.html</strong> is running in 2 individual iframes below. Click on the buttons to fire events from either page. You can also <a href="demo.html" target="_blank">open demo.html</a> into multiple tabs in your browser for a more convincing demonstration of cross-tab events.</p>
 
         <div class="demoDiv demoDiv1">
           <iframe src="demo.html" width="557px" height="202px"></iframe>
+          <div class="refreshButton" xtitle="Reload"></div>
         </div>
         <div class="demoDiv demoDiv2">
           <iframe src="demo.html" width="557px" height="202px"></iframe>
+          <div class="refreshButton" xtitle="Reload"></div>
         </div>
+
+        <br>
+
+        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>How Does It Work?</h3>
+        
+        <p>In a nutshell, originEvents.js dispatches events by setting a temporary localStorage item with a custom event object. Such an event is received locally via <a href="http://hansifer.github.io/snorkel.js/" target="_blank">snorkel.js</a> events and remotely by same-origin tabs, iframes, and popups via the "storage" event of <a href="http://www.w3.org/TR/webstorage/" target="_blank">Web Storage</a>. Visit <a href="https://github.com/hansifer/originEvents.js" target="_blank">the project's GitHub page</a> for more technical details.</p>
+
+        <br>
+
+        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Contributing</h3>
+        
+        <p>originEvents.js was initially created as a proof-of-concept for a <a href="http://hansifer.github.io/snorkel.js/" target="_blank">snorkel.js</a> feature. Critical feedback, ideas, and pull requests are welcome. </p>
+
 
 <!-- 
 
@@ -61,5 +76,12 @@ $ git checkout gh-pages
       </footer>
     </div>
     <script src="js/scale.fix.js"></script>
+    <script src="js/jquery-2.0.2.min.js"></script>
+    <script>
+    $('.refreshButton').on('click',function(){
+      var iframe = $(this).parent().find('iframe')[0];
+      iframe.src = iframe.src;
+    });
+    </script>
   </body>
 </html>
