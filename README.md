@@ -93,11 +93,11 @@ IE goes against the 'storage' event spec in two ways that we need to make specia
 
 2)	IE raises locally-sourced 'storage' events in addition to remote ones.
 
-Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-sourced events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a ```window```, so we’ll use this key name to filter locally-sourced events passing through the 'storage' event handler. Making use of UUIDs in this way is not bullet-proof, but operationally it’s good enough, at least for now.
+Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-sourced events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a ```window```, so we’ll use this key name to filter locally-sourced events passing through the 'storage' event handler. Making use of UUIDs to establish ```window``` identity is not bullet-proof, but operationally it’s good enough, at least for now.
 
 Alternatives
 ---
 
 JavaScript has had support for communication across same-origin windows for some time. More recently, [```window.postMessage()```](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** communication as well. 
 
-While the established approaches work fine for communicating across iframes/frames and windows returned by ```window.open()```, their reliance on ```window``` "handles" keeps browser **tabs** out of reach.
+While the established approaches work fine for communicating across iframes/frames and windows returned by ```window.open()```, their reliance on ```window``` "handles" keeps browser **tabs** out of their reach.
