@@ -1,22 +1,22 @@
-![logoFullBleed_red.png](https://raw.github.com/hansifer/originEvents.js/gh-pages/images/logoFullBleed_red.png)
+![](https://raw.github.com/hansifer/originEvents.js/gh-pages/images/logo_red.png)
 
 ### Trigger and handle events across same-origin tabs and iframes
 
 Introduction
 ---
 
-originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same browser instance to trigger and handle custom events within and across each other. ![Click here for a demo](http://hansifer.github.io/originEvents.js/).
+originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same browser instance to trigger and handle custom events within and across each other. [Visit the demo page](http://hansifer.github.io/originEvents.js/).
 
 How Does It Work?
 ---
 
-In a nutshell, originEvents.js dispatches events by setting a temporary localStorage item with a custom event object. Such an event is received locally via snorkel.js events and remotely by same-origin tabs, iframes, and popups via the "storage" event of Web Storage. Visit the project's GitHub page for more technical details.
+In a nutshell, originEvents.js dispatches events by setting a temporary localStorage item with a custom event object. Such an event is received locally via [snorkel.js](http://hansifer.github.io/snorkel.js/) events and remotely by same-origin tabs, iframes, and popups via the "storage" event of [Web Storage](http://www.w3.org/TR/webstorage/). For additional technical details, [read on](#technical-notes).
 
 API
 ---
 
 Technical Notes
----------------
+---
 
 ###Size
 
