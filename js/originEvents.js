@@ -11,6 +11,10 @@
 	var windowKeyName = baseKeyName + uuid.v4() + '.';
 	var re = new RegExp('^' + baseKeyName.replace('.', '\\.') + '[0-9a-f]{32}\\.\\d+$');
 
+	var triggerEnabled = false;
+	var localListenerEnabled = false;
+	var remoteListenerEnabled = false;
+
 	var listeners = {};
 
 	var remoteStorageEventHandler = function(e) {
@@ -23,7 +27,10 @@
 
 	var localStorageEventHandler = function(e, k, v) {
 		if (e === 'updated' || e === 'added') {
-			emit(v, true);
+			if (localListenerEnabled) {
+				emit(v, true);
+			}
+
 			snorkel.remove(k);
 		}
 	};
@@ -34,15 +41,8 @@
 		});
 	};
 
-	// listen for local and remote storage events
-	snorkel.on(localStorageEventHandler, re);
-	global.addEventListener('storage', remoteStorageEventHandler, false);
-
 	var originEvents = {};
 
-	originEvents.triggerEnabled = true;
-	originEvents.localListenerEnabled = true;
-	originEvents.remoteListenerEnabled = true;
 
 	originEvents.on = function(iType, iHandler) {
 		if (!(iType in listeners)) {
@@ -65,7 +65,7 @@
 	};
 
 	originEvents.trigger = function(iType, iMessage) {
-		if (originEvents.triggerEnabled) {
+		if (triggerEnabled) {
 			snorkel.set(windowKeyName + (incrementor++), {
 				// incrementor: ++incrementor,
 				datetime: new Date(),
@@ -74,6 +74,47 @@
 			});
 		}
 	};
+
+	originEvents.triggerEnabled = function(iEnabled) {
+		if (arguments.length) {
+			if (iEnabled && !triggerEnabled) {
+				snorkel.on(localStorageEventHandler, re);
+			} else if (!iEnabled && triggerEnabled) {
+				snorkel.off(localStorageEventHandler, re);
+			}
+
+			triggerEnabled = iEnabled;
+		}
+
+		return triggerEnabled;
+	};
+
+	originEvents.localListenerEnabled = function(iEnabled) {
+		if (arguments.length) {
+			localListenerEnabled = iEnabled;
+		}
+
+		return localListenerEnabled;
+	};
+
+	originEvents.remoteListenerEnabled = function(iEnabled) {
+		if (arguments.length) {
+			if (iEnabled && !remoteListenerEnabled) {
+				global.addEventListener('storage', remoteStorageEventHandler, false);
+			} else if (!iEnabled && remoteListenerEnabled) {
+				global.removeEventListener('storage', remoteStorageEventHandler, false);
+			}
+
+			remoteListenerEnabled = iEnabled;
+		}
+
+		return remoteListenerEnabled;
+	};
+
+	// listen for local and remote storage events
+	originEvents.triggerEnabled(true);
+	originEvents.remoteListenerEnabled(true);
+	originEvents.localListenerEnabled(true);
 
 	global.originEvents = originEvents;
 }).call(this);

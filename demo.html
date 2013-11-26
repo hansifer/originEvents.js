@@ -9,6 +9,11 @@
         -webkit-user-select:none;
         -moz-user-select:none;
         -ms-user-select:none;
+        font-family: helvetica, arial, sans-serif;
+        font-size: 12px;
+      }
+
+      input[type="checkbox"] {
       }
 
       button {
@@ -90,6 +95,9 @@
         <button id="boom" class="boom">Boom!</button>
         <button id="bang" class="bang">Bang!</button>
         <button id="bing" class="bing">Bing!</button>
+        <div><input id="cbTriggerEnabled" type="checkbox" /><label for="cbTriggerEnabled">Enable Trigger</label></div>
+        <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Enable Local Listener</label></div>
+        <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Enable Remote Listener</label></div>
       </header>
 
       <div id="output"></div>
@@ -123,6 +131,22 @@
       function padNumber(num) {
         return (num < 10 ? '0' : '') + num;
       }
+
+      $('#cbTriggerEnabled').prop('checked', originEvents.triggerEnabled());
+      $('#cbLocalListenerEnabled').prop('checked', originEvents.localListenerEnabled());
+      $('#cbRemoteListenerEnabled').prop('checked', originEvents.remoteListenerEnabled());
+
+      $('#cbTriggerEnabled').on('change', function () {
+        originEvents.triggerEnabled(this.checked);
+      });
+
+      $('#cbLocalListenerEnabled').on('change', function () {
+        originEvents.localListenerEnabled(this.checked);
+      });
+
+      $('#cbRemoteListenerEnabled').on('change', function () {
+        originEvents.remoteListenerEnabled(this.checked);
+      });
     </script>
   </body>
 </html>
