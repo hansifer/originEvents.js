@@ -73,6 +73,8 @@
       }
 
       header {
+        display:none;
+        opacity:0;
         float:left;
         width:270px;
         position:fixed;
@@ -148,5 +150,6 @@
         originEvents.remoteListenerEnabled(this.checked);
       });
     </script>
+    <script>$('header').css('display', '').fadeTo('slow', 1)</script>
   </body>
 </html>
