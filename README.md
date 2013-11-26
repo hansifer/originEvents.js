@@ -46,7 +46,7 @@ When an event is triggered by an application via ```originEvents.trigger()```, o
 
 Yes. Yes it is.
 
-However, there isn’t to my knowledge a current alternative providing similar features. Namely, offline cross-tab events (ie, non-targeted messages). If you know of one, please share!
+However, there isn’t to my knowledge a current alternative providing similar features. Particularly, offline cross-tab events (ie, non-targeted messages). If you know of one, please share!
 
 ###Internet Explorer Support
 
@@ -63,6 +63,6 @@ Alternatives
 
 JavaScript has had support for communication across same-origin windows for some time. More recently, [```window.postMessage()```](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** communication as well. 
 
-While these approaches work fine for communicating across iframes/frames and windows returned by ```window.open()```, their reliance on ```window``` "handles" denies browser tabs from their reach.
+While the established approaches work fine for communicating across iframes/frames and windows returned by ```window.open()```, their reliance on ```window``` "handles" denies browser tabs from their reach.
 
 
