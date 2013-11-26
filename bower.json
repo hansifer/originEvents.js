@@ -1,0 +1,11 @@
+{
+	"name": "originEvents",
+	"version": "0.1.0",
+	"main": "originEvents.js",
+	"dependencies": {
+	    "node-uuid-hansifer": ">=1.4.1",
+	    "underscore": ">=1.5.1",
+	    "snorkel": ">=0.1.0"
+	},
+	"ignore": ["originEvents.min.js", "docs", "test", "*.yml", "*.map"]
+}
