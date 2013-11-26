@@ -9,6 +9,11 @@
         -webkit-user-select:none;
         -moz-user-select:none;
         -ms-user-select:none;
+        font-family: helvetica, arial, sans-serif;
+        font-size: 12px;
+      }
+
+      input[type="checkbox"] {
       }
 
       button {
@@ -90,6 +95,9 @@
         <button id="boom" class="boom">Boom!</button>
         <button id="bang" class="bang">Bang!</button>
         <button id="bing" class="bing">Bing!</button>
+        <div style="margin-top:30px;"><input id="cbTriggerEnabled" type="checkbox" /><label for="cbTriggerEnabled">Trigger</label></div>
+        <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Local Listener</label></div>
+        <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Remote Listener</label></div>
       </header>
 
       <div id="output"></div>
@@ -102,18 +110,18 @@
     <script src="js/originEvents.js"></script>
     <script>
       // add listener
-      originEvents.on(function(isLocal){
-        outputEvent(this.type, this.datetime, isLocal);
+      originEvents.on('commotion', function(isLocal){
+        outputEvent(this.message, this.datetime, isLocal);
       });
 
       // trigger event
-      function triggerCustomEvent(eventName){
-        originEvents.trigger(eventName);
+      function triggerCommotion(noise){
+        originEvents.trigger('commotion', noise);
       }
 
-      $('#boom').on('click', function () { triggerCustomEvent('boom')});
-      $('#bang').on('click', function () { triggerCustomEvent('bang')});
-      $('#bing').on('click', function () { triggerCustomEvent('bing')});
+      $('#boom').on('click', function () { triggerCommotion('boom')});
+      $('#bang').on('click', function () { triggerCommotion('bang')});
+      $('#bing').on('click', function () { triggerCommotion('bing')});
 
       function outputEvent(type, datetime, isLocal) {
         type = '<span class="' + type + '" style="border-radius: 2px;padding:2px 4px;">' + type + '</span>';
@@ -123,6 +131,22 @@
       function padNumber(num) {
         return (num < 10 ? '0' : '') + num;
       }
+
+      $('#cbTriggerEnabled').prop('checked', originEvents.triggerEnabled());
+      $('#cbLocalListenerEnabled').prop('checked', originEvents.localListenerEnabled());
+      $('#cbRemoteListenerEnabled').prop('checked', originEvents.remoteListenerEnabled());
+
+      $('#cbTriggerEnabled').on('change', function () {
+        originEvents.triggerEnabled(this.checked);
+      });
+
+      $('#cbLocalListenerEnabled').on('change', function () {
+        originEvents.localListenerEnabled(this.checked);
+      });
+
+      $('#cbRemoteListenerEnabled').on('change', function () {
+        originEvents.remoteListenerEnabled(this.checked);
+      });
     </script>
   </body>
 </html>
