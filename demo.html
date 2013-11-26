@@ -102,18 +102,18 @@
     <script src="js/originEvents.js"></script>
     <script>
       // add listener
-      originEvents.on(function(isLocal){
-        outputEvent(this.type, this.datetime, isLocal);
+      originEvents.on('commotion', function(isLocal){
+        outputEvent(this.message, this.datetime, isLocal);
       });
 
       // trigger event
-      function triggerCustomEvent(eventName){
-        originEvents.trigger(eventName);
+      function triggerCommotion(noise){
+        originEvents.trigger('commotion', noise);
       }
 
-      $('#boom').on('click', function () { triggerCustomEvent('boom')});
-      $('#bang').on('click', function () { triggerCustomEvent('bang')});
-      $('#bing').on('click', function () { triggerCustomEvent('bing')});
+      $('#boom').on('click', function () { triggerCommotion('boom')});
+      $('#bang').on('click', function () { triggerCommotion('bang')});
+      $('#bing').on('click', function () { triggerCommotion('bing')});
 
       function outputEvent(type, datetime, isLocal) {
         type = '<span class="' + type + '" style="border-radius: 2px;padding:2px 4px;">' + type + '</span>';

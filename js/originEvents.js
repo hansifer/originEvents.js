@@ -6,15 +6,15 @@
 (function(undefined) {
 	var global = this;
 
-	var count = 0;
+	var incrementor = 0;
 	var baseKeyName = 'originEvents.nooxis.com.';
 	var windowKeyName = baseKeyName + uuid.v4() + '.';
-	var re = new RegExp('^' + baseKeyName.replace('.', '\\.') + '[0-9a-f]{32}\\.\\d+');
+	var re = new RegExp('^' + baseKeyName.replace('.', '\\.') + '[0-9a-f]{32}\\.\\d+$');
 
 	var listeners = {};
 
 	var remoteStorageEventHandler = function(e) {
-		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses "" instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
+		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses empty string instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
 			emit(snorkel.decodeValue(e.newValue), false);
@@ -66,8 +66,8 @@
 
 	originEvents.trigger = function(iType, iMessage) {
 		if (originEvents.triggerEnabled) {
-			snorkel.set(windowKeyName + (count++), {
-				// count: ++count,
+			snorkel.set(windowKeyName + (incrementor++), {
+				// incrementor: ++incrementor,
 				datetime: new Date(),
 				type: iType,
 				message: iMessage
