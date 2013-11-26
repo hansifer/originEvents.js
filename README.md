@@ -32,14 +32,26 @@ originEvents.off('registration_complete');
 ###trigger(```string``` *eventType* [, ```any``` *message*])
 Triggers an event of type eventType.
 ```js
-originEvents.off('registration_complete', someFunctionName);
-originEvents.off('registration_complete');
+originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
-
-###triggerEnabled(enabled)
-###localListenerEnabled(enabled)
-###remoteListenerEnabled(enabled)
-
+###triggerEnabled([```boolean``` *enabled*])
+Gets or sets whether originEvents.js dispatches events.
+```js
+originEvents.triggerEnabled(false);  // prevent originEvents from being raised
+originEvents.triggerEnabled();       // returns false
+```
+###localListenerEnabled([```boolean``` *enabled*])
+Gets or sets whether originEvents.js allows locally-triggered events to be handled.
+```js
+originEvents.localListenerEnabled(false);  // prevent locally-triggered events from being handled
+originEvents.localListenerEnabled();       // returns false
+```
+###remoteListenerEnabled([```boolean``` *enabled*])
+Gets or sets whether originEvents.js allows remotely-triggered events to be handled.
+```js
+originEvents.remoteListenerEnabled(false);  // prevent remotely-triggered events from being handled
+originEvents.remoteListenerEnabled();       // returns false
+```
 <nowiki>*</nowiki> ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested oject/arry of such.
 
 Technical Notes
