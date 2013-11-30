@@ -23,7 +23,8 @@ Initializes and returns an originEvents context object to use for further API ca
 // return a default-initialized originEvents context object
 var originEvents = window.originEventsInit();   
 
-// return an originEvents context object that can only emit events to other same-origin tabs/iframes/popups
+// return an originEvents context object that can emit events 
+// only to OTHER same-origin tabs/iframes/popups
 var originEvents = window.originEventsInit(false);  
 ```
 ###on (```string``` *eventType*, ```function``` *handler* [, ```string``` *scope*])
