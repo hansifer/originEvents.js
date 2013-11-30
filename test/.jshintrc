@@ -12,8 +12,7 @@
   "eqnull": true,
   "browser": true,
   "predef": [
-    "J",
-    "snorkel",
+    "originEventsInit",
     "$",
     "_",
     "jQuery",
