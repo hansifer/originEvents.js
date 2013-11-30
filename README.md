@@ -89,7 +89,14 @@ Gzipped:   ~ 0.4k
 -	[node-uuid](https://github.com/broofa/node-uuid)
 
 ###Mechanism
-When an event is triggered by an application via ```originEvents.trigger()```, originEvents.js uses [snorkel.js](http://hansifer.github.io/snorkel.js/) to set a custom event object (ie, an originEvent) that includes the event type, timestamp, and message (which can be a JavaScript primitive, Date, RegExp, null, undefined, or an object/array comprising such). This triggers the 'storage' event and queues up any associated handler calls in each same-origin global context (tab, iframe, popup) that exists in the current browser instance. This is immediately followed by a snorkel 'updated' or 'added' event that is handled by originEvents.js so that it may qualify the corresponding originEvent for emission as a **local** originEvent and remove it from localStorage.
+
+####Remote Events
+
+When an event is triggered by an application via ```originEvents.trigger()```, originEvents.js uses [snorkel.js](http://hansifer.github.io/snorkel.js/) to set a custom event object (ie, an originEvent) that includes the event type, timestamp, and message (which can be a JavaScript primitive, Date, RegExp, null, undefined, or an object/array comprising such). This triggers the 'storage' event and queues up any associated handler calls in each same-origin global context (tab, iframe, popup) that exists in the current browser instance. The snorkel set is immediately followed by a localStorage.removeItem() call to clean up the dispatched event.
+
+####Local Events
+
+Local events are implemented similarly to many event libraries (ie, trigger leads to direct handler call).
 
 ####Isn’t This a Hack?
 
