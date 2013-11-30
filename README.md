@@ -104,6 +104,10 @@ Yes. Yes it is.
 
 However, there isn’t to my knowledge a current alternative providing similar features. Particularly, offline cross-tab events (ie, non-targeted messages). If you know of one, please share!
 
+####Isn’t This a Performance Liability?
+
+As with all great questions, the answer is *maybe*. Assessing the viability of a solution requires careful consideration of relevant benefits against relevant costs. What's relevant and to what extent depends on the specific requirements of your project. Here's [a pretty good article by Nicholas Zakas on localStorage performance](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/), which varies considerably across browser vendors.
+
 ###Internet Explorer Support
 
 IE goes against the 'storage' event spec in two ways that we need to make special accommodation for:
