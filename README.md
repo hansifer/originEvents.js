@@ -20,37 +20,48 @@ API
 ###window.originEventsInit ([```boolean``` *canEmitLocally*, ```boolean``` *canEmitRemotely*])
 Initializes and returns an originEvents context object to use for further API calls. Default value for each option is ```true```.
 ```js
-var originEvents = window.originEventsInit();   // return an default-initialized originEvents context object
-var originEvents = window.originEventsInit(false);  // return an originEvents context object that can only emit events to *other* same-origin tabs/iframes/popups.
+// return a default-initialized originEvents context object
+var originEvents = window.originEventsInit();   
+
+// return an originEvents context object that can only emit events to other same-origin tabs/iframes/popups
+var originEvents = window.originEventsInit(false);  
 ```
 ###on (```string``` *eventType*, ```function``` *handler* [, ```string``` *scope*])
 Adds a handler for an *eventType*. Optional *scope* of 'local' or 'remote' limits the types of events this handler processes.
 ```js
 originEvents.on('registration_complete',
-   function (iType, iMessage, iDatetime, isRemoteEvent) { alert('Thanks for signing up, ' + iMessage.username); });
+   function (iType, iMessage, iDatetime, isRemoteEvent) { 
+      alert('Thanks for signing up, ' + iMessage.username); 
+   });
 ```
 ###off (```string``` *eventType* [, ```function``` *handler*])
-Removes a handler for type *eventType*. If handler not specified, all handlers for eventType are removed.
+Removes a handler for an *eventType*. If *handler* is not specified, all handlers for *eventType* are removed.
 ```js
 originEvents.off('registration_complete', someFunctionName);
-originEvents.off('registration_complete');
+originEvents.off('registration_complete');  // remove all handlers for eventType
 ```
 ###trigger (```string``` *eventType* [, ```any``` *message*])
-Triggers an event of type *eventType*, passing *message*.
+Triggers an event of *eventType*, passing *message*.
 ```js
 originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
 ###canEmitLocally ([```boolean``` *canEmitLocally*])
-Gets or sets whether originEvents.js emits locally-triggered events locally.
+Gets or sets whether originEvents.js emits locally-triggered events locally (ie, within the same global context).
 ```js
-originEvents.canEmitLocally(false);  // prevent locally-triggered events from being emitted locally
-originEvents.canEmitLocally();       // returns ```true``` or ```false```
+// prevent locally-triggered events from being emitted locally
+originEvents.canEmitLocally(false);  
+
+// returns true or false
+originEvents.canEmitLocally();       
 ```
 ###canEmitRemotely ([```boolean``` *canEmitRemotely*])
 Gets or sets whether originEvents.js emits locally-triggered events to remote tabs/iframes/popups.
 ```js
-originEvents.canEmitRemotely(false);  // prevent locally-triggered events from being emitted to remote tabs/iframes/popups
-originEvents.canEmitRemotely();       // returns ```true``` or ```false```
+// prevent locally-triggered events from being emitted to remote tabs/iframes/popups
+originEvents.canEmitRemotely(false);  
+
+// returns true or false
+originEvents.canEmitRemotely();       
 ```
 <nowiki>*</nowiki>&nbsp;&nbsp;  ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested object/array of such.
 
