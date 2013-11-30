@@ -5,52 +5,52 @@
 Introduction
 ---
 
-originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same (possibly offline) browser instance to trigger and handle custom events within and across each other. [Visit the demo page](http://hansifer.github.io/originEvents.js/).
+originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same (possibly offline) browser instance to trigger and handle custom events within and across each other. [**See it in action**](http://hansifer.github.io/originEvents.js/).
 
 originEvents.js was initially created as a proof-of-concept for a [snorkel.js](http://hansifer.github.io/snorkel.js/) feature. Critical feedback, ideas, and pull requests are welcome.
 
 How Does It Work?
 ---
 
-In a nutshell, originEvents.js dispatches events by setting a temporary localStorage item with a custom event object. Such an event is received locally via [snorkel.js](http://hansifer.github.io/snorkel.js/) events and remotely by same-origin tabs, iframes, and popups via the 'storage' event of [Web Storage](http://www.w3.org/TR/webstorage/). For additional technical details, [read on](#technical-notes).
+In a nutshell, originEvents.js implements cross-tab events by setting a temporary localStorage item with a custom event object. Such an event is received remotely by same-origin tabs, iframes, and popups via the 'storage' event of [Web Storage](http://www.w3.org/TR/webstorage/). Local (ie, same global context) events are implemented through standard means. For additional technical details, [read on](#technical-notes).
 
 API
 ---
 
-###on (```string``` *eventType*, ```function``` *handler*)
-Adds a listener for locally and remotely-triggered events of type eventType.
+###window.originEventsInit ([```boolean``` *canEmitLocally*, ```boolean``` *canEmitRemotely*])
+Initializes and returns an originEvents context object to use for further API calls. Default value for each option is ```true```.
+```js
+var originEvents = window.originEventsInit();   // return an default-initialized originEvents context object
+var originEvents = window.originEventsInit(false);  // return an originEvents context object that can only emit events to *other* same-origin tabs/iframes/popups.
+```
+###on (```string``` *eventType*, ```function``` *handler* [, ```string``` *scope*])
+Adds a handler for an *eventType*. Optional *scope* of 'local' or 'remote' limits the types of events this handler processes.
 ```js
 originEvents.on('registration_complete',
-   function (isLocal) { alert('Thanks for signing up, ' + this.message.username); });
+   function (iType, iMessage, iDatetime, isRemoteEvent) { alert('Thanks for signing up, ' + iMessage.username); });
 ```
 ###off (```string``` *eventType* [, ```function``` *handler*])
-Removes a single or all listeners for locally and remotely-triggered events of type eventType.
+Removes a handler for type *eventType*. If handler not specified, all handlers for eventType are removed.
 ```js
 originEvents.off('registration_complete', someFunctionName);
 originEvents.off('registration_complete');
 ```
 ###trigger (```string``` *eventType* [, ```any``` *message*])
-Triggers an event of type eventType, passing message.
+Triggers an event of type *eventType*, passing *message*.
 ```js
 originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
-###triggerEnabled ([```boolean``` *enabled*])
-Gets or sets whether originEvents.js dispatches events.
+###canEmitLocally ([```boolean``` *canEmitLocally*])
+Gets or sets whether originEvents.js emits locally-triggered events locally.
 ```js
-originEvents.triggerEnabled(false);  // prevent originEvents from being raised
-originEvents.triggerEnabled();       // returns false
+originEvents.canEmitLocally(false);  // prevent locally-triggered events from being emitted locally
+originEvents.canEmitLocally();       // returns ```true``` or ```false```
 ```
-###localListenerEnabled ([```boolean``` *enabled*])
-Gets or sets whether originEvents.js allows locally-triggered events to be handled.
+###canEmitRemotely ([```boolean``` *canEmitRemotely*])
+Gets or sets whether originEvents.js emits locally-triggered events to remote tabs/iframes/popups.
 ```js
-originEvents.localListenerEnabled(false);  // prevent locally-triggered events from being handled
-originEvents.localListenerEnabled();       // returns false
-```
-###remoteListenerEnabled ([```boolean``` *enabled*])
-Gets or sets whether originEvents.js allows remotely-triggered events to be handled.
-```js
-originEvents.remoteListenerEnabled(false);  // prevent remotely-triggered events from being handled
-originEvents.remoteListenerEnabled();       // returns false
+originEvents.canEmitRemotely(false);  // prevent locally-triggered events from being emitted to remote tabs/iframes/popups
+originEvents.canEmitRemotely();       // returns ```true``` or ```false```
 ```
 <nowiki>*</nowiki>&nbsp;&nbsp;  ```any``` can be a ```number```, ```string```, ```boolean```, ```Date```, ```RegExp```, ```null```, ```undefined```, ```object```, ```array``` or arbitrarily-nested object/array of such.
 
@@ -59,11 +59,11 @@ Technical Notes
 
 ###Size
 
-Original:  ~ 3.3k
+Original:  ~ 4.8k
 
-Minified:  ~ 1.2k
+Minified:  ~ 1.6k
 
-Gzipped:   ~ 0.3k
+Gzipped:   ~ 0.4k
 
 ###Dependencies
 
