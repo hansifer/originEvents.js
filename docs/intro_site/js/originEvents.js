@@ -11,110 +11,162 @@
 	var windowKeyName = baseKeyName + uuid.v4() + '.';
 	var re = new RegExp('^' + baseKeyName.replace('.', '\\.') + '[0-9a-f]{32}\\.\\d+$');
 
-	var triggerEnabled = false;
-	var localListenerEnabled = false;
-	var remoteListenerEnabled = false;
-
 	var listeners = {};
 
-	var remoteStorageEventHandler = function(e) {
+	var VERSION = '0.1.0';
+
+	// number of total handlers with 'remote' or 'all' scope; used to add/remove 'storage' listener as needed
+	var remoteListenerCount = 0;
+
+	var snorkel;
+
+	// called when 'storage' event is raised
+	var storageEventHandler = function(e) {
+		var originEvent;
+
 		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses empty string instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
-			emit(snorkel.decodeValue(e.newValue), false);
+			originEvent = snorkel.decodeValue(e.newValue);
+			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
 		}
 	};
 
-	var localStorageEventHandler = function(e, k, v) {
-		if (e === 'updated' || e === 'added') {
-			if (localListenerEnabled) {
-				emit(v, true);
+	var emitLocally = function(iType, iMessage, iDatetime, isRemoteEvent) {
+		_.each(listeners[iType], function(handler) {
+			if (handler.s === 'all' || ((handler.s === 'remote' && isRemoteEvent) || (handler.s === 'local' && !isRemoteEvent))) {
+				handler.h(iType, iMessage, iDatetime, isRemoteEvent);
 			}
-
-			snorkel.remove(k);
-		}
-	};
-
-	var emit = function(iOriginEvent, iIsLocal) {
-		_.each(listeners[iOriginEvent.type], function(handler) {
-			handler.call(iOriginEvent, iIsLocal);
 		});
 	};
 
-	var originEvents = {};
+	// API 
 
+	// iScope determines the types of events this handler processes ('local', 'remote', or 'all' [default])
+	var on = function(iType, iHandler, iScope) {
+		iScope = iScope === 'local' && 'local' || iScope === 'remote' && 'remote' || 'all';
 
-	originEvents.on = function(iType, iHandler) {
 		if (!(iType in listeners)) {
 			listeners[iType] = [];
 		}
 
-		if (!_.contains(listeners[iType], iHandler)) {
-			listeners[iType].push(iHandler);
+		// allowing duplicate handlers per event type
+		listeners[iType].push({
+			h: iHandler,
+			s: iScope
+		});
+
+		if (iScope === 'remote' || iScope === 'all') {
+			if (!remoteListenerCount) {
+				global.addEventListener('storage', storageEventHandler, false);
+			}
+
+			remoteListenerCount++;
 		}
 	};
 
-	originEvents.off = function(iType, iHandler) {
+	var off = function(iType, iHandler) {
+		var index, handler;
+
 		if (iType in listeners) {
 			if (iHandler) {
-				listeners[iType].splice(listeners[iType].indexOf(iHandler), 1);
+				handler = _.find(listeners[iType], function(el, i) {
+					if (el.h === iHandler) {
+						index = i;
+						return true;
+					}
+					return false;
+				});
+
+				if (!_.isUndefined(index)) {
+					if (remoteListenerCount && (handler.s === 'remote' || handler.s === 'all')) {
+						remoteListenerCount = Math.max(remoteListenerCount - 1, 0);
+
+						if (!remoteListenerCount) {
+							global.removeEventListener('storage', storageEventHandler, false);
+						}
+					}
+
+					listeners[iType].splice(index, 1);
+				}
 			} else {
+				if (remoteListenerCount) {
+					_.each(listeners[iType], function(el) {
+						if (el.s === 'remote' || el.s === 'all') {
+							remoteListenerCount = Math.max(remoteListenerCount - 1, 0);
+						}
+					});
+
+					if (!remoteListenerCount) {
+						global.removeEventListener('storage', storageEventHandler, false);
+					}
+				}
+
 				delete listeners[iType];
 			}
 		}
 	};
 
-	originEvents.trigger = function(iType, iMessage) {
-		if (triggerEnabled) {
-			snorkel.set(windowKeyName + (incrementor++), {
+	// requires context
+	var trigger = function(iType, iMessage) {
+		var key;
+		var datetime = new Date();
+
+		if (this.canEmitRemotely()) {
+			snorkel.set(key = windowKeyName + (incrementor++), {
 				// incrementor: ++incrementor,
-				datetime: new Date(),
+				datetime: datetime,
 				type: iType,
 				message: iMessage
 			});
+
+			localStorage.removeItem(key); // don't incur unnecessary overhead for snorkel features we don't need
+		}
+
+		if (this.canEmitLocally()) {
+			emitLocally(iType, iMessage, datetime);
 		}
 	};
 
-	originEvents.triggerEnabled = function(iEnabled) {
+	// requires context
+	var canEmitLocally = function(iCanEmitLocally) {
 		if (arguments.length) {
-			if (iEnabled && !triggerEnabled) {
-				snorkel.on(localStorageEventHandler, re);
-			} else if (!iEnabled && triggerEnabled) {
-				snorkel.off(localStorageEventHandler, re);
-			}
-
-			triggerEnabled = iEnabled;
+			this._l = iCanEmitLocally;
 		}
 
-		return triggerEnabled;
+		return this._l;
 	};
 
-	originEvents.localListenerEnabled = function(iEnabled) {
+	// requires context
+	var canEmitRemotely = function(iCanEmitRemotely) {
 		if (arguments.length) {
-			localListenerEnabled = iEnabled;
+			this._r = iCanEmitRemotely;
 		}
 
-		return localListenerEnabled;
+		return this._r;
 	};
 
-	originEvents.remoteListenerEnabled = function(iEnabled) {
-		if (arguments.length) {
-			if (iEnabled && !remoteListenerEnabled) {
-				global.addEventListener('storage', remoteStorageEventHandler, false);
-			} else if (!iEnabled && remoteListenerEnabled) {
-				global.removeEventListener('storage', remoteStorageEventHandler, false);
-			}
+	// initializes and returns a originEvents context
+	var originEventsInit = function(iCanEmitLocally, iCanEmitRemotely) {
+		var ret = {};
 
-			remoteListenerEnabled = iEnabled;
+		ret.on = on;
+		ret.off = off;
+		ret.trigger = trigger;
+		ret.canEmitLocally = canEmitLocally;
+		ret.canEmitRemotely = canEmitRemotely;
+		ret.version = VERSION;
+
+		ret.canEmitLocally(_.isUndefined(iCanEmitLocally) || iCanEmitLocally);
+		ret.canEmitRemotely(_.isUndefined(iCanEmitRemotely) || iCanEmitRemotely);
+
+		if (!snorkel) {
+			snorkel = true;
+			snorkel = global.snorkelInit(false, false); // not using snorkel events
 		}
 
-		return remoteListenerEnabled;
+		return ret;
 	};
 
-	// listen for local and remote storage events
-	originEvents.triggerEnabled(true);
-	originEvents.remoteListenerEnabled(true);
-	originEvents.localListenerEnabled(true);
-
-	global.originEvents = originEvents;
+	global.originEventsInit = originEventsInit;
 }).call(this);

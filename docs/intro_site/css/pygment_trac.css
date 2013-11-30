@@ -4,7 +4,7 @@
 .highlight .o { font-weight: bold; color: #6B6B6B } /* Operator */
 .highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
 .highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
-.highlight .c1 { color: #525252; font-style: italic } /* Comment.Single */
+.highlight .c1 { color: #9B9B9B; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
 .highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
 .highlight .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
@@ -19,7 +19,7 @@
 .highlight .gu { color: #800080; font-weight: bold; } /* Generic.Subheading */
 .highlight .gt { color: #aa0000 } /* Generic.Traceback */
 .highlight .kc { font-weight: normal } /* Keyword.Constant */
-.highlight .kd { color: hsl(0,0%,77%); } /* Keyword.Declaration */
+.highlight .kd { color: hsl(0, 0%, 20%); } /* Keyword.Declaration */
 .highlight .kn { font-weight: bold } /* Keyword.Namespace */
 .highlight .kp { font-weight: bold } /* Keyword.Pseudo */
 .highlight .kr { font-weight: bold } /* Keyword.Reserved */
@@ -51,7 +51,7 @@
 .highlight .si { color: #d14 } /* Literal.String.Interpol */
 .highlight .sx { color: #d14 } /* Literal.String.Other */
 .highlight .sr { color: #009926 } /* Literal.String.Regex */
-.highlight .s1 { color: #C2AF4B } /* Literal.String.Single */
+.highlight .s1 { color: #009406 } /* Literal.String.Single */
 .highlight .ss { color: #990073 } /* Literal.String.Symbol */
 .highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
 .highlight .vc { color: #008080 } /* Name.Variable.Class */
@@ -59,7 +59,7 @@
 .highlight .vi { color: #008080 } /* Name.Variable.Instance */
 .highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
 .highlight .nxs { color: rgb(108, 170, 99); font-style:italic; } /* Literal.Number.Integer.Long */
-.highlight .nx { color: #C05534 } /* Literal.Number.Integer.Long */
+.highlight .nx { color: #D32720 } /* Literal.Number.Integer.Long */
 
 .type-csharp .highlight .k {  }
 .type-csharp .highlight .kt { color: #0000FF }
