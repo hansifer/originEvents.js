@@ -103,9 +103,9 @@ IE goes against the 'storage' event spec in two ways that we need to make specia
 
 1)	IE uses empty string instead of ```null``` for ```e.oldValue``` and ```e.newValue``` StorageEvent properties when items are added and removed, respectively.
 
-2)	IE raises locally-sourced 'storage' events in addition to remote ones.
+2)	IE raises locally-initiated 'storage' events in addition to remote ones.
 
-Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-sourced events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a ```window```, so we’ll use this key name to filter locally-sourced events passing through the 'storage' event handler. Making use of UUIDs to establish ```window``` identity is not bullet-proof, but operationally it’s good enough, at least for now.
+Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-initiated events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a ```window```, so we’ll use this key name to filter locally-initiated events passing through the 'storage' event handler. Making use of UUIDs to establish ```window``` identity is not bullet-proof, but operationally it’s good enough, at least for now.
 
 Alternatives
 ---
