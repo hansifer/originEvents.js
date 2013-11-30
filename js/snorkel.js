@@ -1,4 +1,4 @@
-//     snorkel.js 1.0
+//     snorkel.js 0.1.0
 //     http://snorkeljs.org
 //     (c) 2013 Hans Meyer
 //     snorkel may be freely distributed under the MIT license.
@@ -7,17 +7,21 @@
 	// set global to 'window' (browser) or 'exports' (server)
 	var global = this;
 
-	// record access names and current references
-	var access = {};
-	access.snorkel = global.snorkel;
-	access.J = global.J;
-
-	var listeners = [];
-	var emitEnabled = true;
-
 	var localStorage = global.localStorage;
 
-	var i;
+	// record access names and current references
+	var access = {};
+	access.snorkelInit = global.snorkelInit;
+	// access.snorkel = global.snorkel;
+	// access.J = global.J;
+
+	var listeners = [];
+
+	var VERSION = '0.1.0';
+
+	var remoteEventListenerCount = 0;
+
+	var i, originEvents;
 
 	// --- VALIDATION ---
 
@@ -183,11 +187,12 @@
 	// --- GET/SET ---
 
 	var getDecodedStoredValue = function(iKey) {
-		if (snorkel.exists(iKey)) {
+		if (exists(iKey)) {
 			return decodeValue(localStorage.getItem(iKey));
 		}
 	};
 
+	// requires context
 	var setStoredValue = function(iKey, iValue, iEncodedValue) {
 		var oldValue;
 
@@ -195,14 +200,14 @@
 			iEncodedValue = encodeValue(iValue);
 		}
 
-		if (emitRequired()) {
-			if (snorkel.exists(iKey)) {
-				oldValue = snorkel.get(iKey);
+		if (this.canEmitLocally() && listeners.length || this.canEmitRemotely()) {
+			if (exists(iKey)) {
+				oldValue = get(iKey);
 				localStorage.setItem(iKey, iEncodedValue);
-				emit('updated', iKey, iValue, oldValue);
+				emit.call(this, 'updated', iKey, iValue, oldValue);
 			} else {
 				localStorage.setItem(iKey, iEncodedValue);
-				emit('added', iKey, iValue);
+				emit.call(this, 'added', iKey, iValue);
 			}
 		} else {
 			localStorage.setItem(iKey, iEncodedValue);
@@ -211,30 +216,59 @@
 
 	// --- EVENTS ---
 
+	// requires context
 	var emit = function(iEventType, iKey, iValue, iOldValue) {
-		var i, j;
-
 		if (isValidKey(iKey)) {
-			iKey = iKey.toString();
+			if (this.canEmitRemotely()) {
+				originEvents.trigger('snorkel', {
+					type: iEventType,
+					key: iKey,
+					value: iValue,
+					oldValue: iOldValue
+				});
+			}
 
-			//console.log('emission check:', iKey, iValue);
-			for (i = 0; i < listeners.length; i++) {
-				// console.log(listeners[i].h.name);
-				for (j = 0; j < listeners[i].k.length; j++) {
-					if (listeners[i].k[j].test(iKey)) {
-						// console.log('match test SUCCESS:', listeners[i].k[j].source, iKey);
-						listeners[i].h.call(snorkel, iEventType, iKey, iValue, (arguments.length === 3 ? iValue : iOldValue));
-						break; // only one call per handler even if multiple keySelectors qualify
-						// } else {
-						// console.log('match test FAIL:', listeners[i].k[j].source, iKey);
-					}
-				}
+			if (this.canEmitLocally()) {
+				emitLocally(iEventType, iKey, iValue, iOldValue);
 			}
 		}
 	};
 
-	var emitRequired = function() {
-		return emitEnabled && listeners.length;
+	var emitLocally = function(iEventType, iKey, iValue, iOldValue, isRemoteEvent) {
+		var i, j;
+
+		iKey = iKey.toString();
+
+		//console.log('emission check:', iKey, iValue);
+		for (i = 0; i < listeners.length; i++) {
+			// console.log(listeners[i].h.name);
+			for (j = 0; j < listeners[i].k.length; j++) {
+				if (listeners[i].k[j].test(iKey) && (iEventType !== 'updated' || listeners[i].a === true || iValue !== iOldValue) && (listeners[i].s === 'all' || ((listeners[i].s === 'remote' && isRemoteEvent) || (listeners[i].s === 'local' && !isRemoteEvent)))) {
+					// console.log('match test SUCCESS:', listeners[i].k[j].source, iKey);
+					break; // only one call per handler even if multiple keySelectors qualify
+					// } else {
+					// console.log('match test FAIL:', listeners[i].k[j].source, iKey);
+				}
+			}
+
+			if (j === 0 || j < listeners[i].k.length) {
+				listeners[i].h(iEventType, iKey, iValue, (arguments.length === 3 ? iValue : iOldValue), isRemoteEvent);
+			}
+		}
+	};
+
+	var normalizeKeySelector = function(iKeySelector) {
+		if (isValidKey(iKeySelector)) {
+			return new RegExp('^' + escapeRegExp(iKeySelector) + '$');
+		} else if (!_.isRegExp(iKeySelector)) {
+			throw 'snorkel invalid key selector ' + toValueString(iKeySelector, '');
+		}
+
+		return iKeySelector;
+	};
+
+	var snorkelEventHander = function() {
+		emitLocally(this.type, this.key, this.value, this.oldValue, true);
 	};
 
 	// --- UTIL ---
@@ -271,7 +305,8 @@
 	// --- API ---
 
 	// HMM 2013-11-23: NOTE: do not add formal parameters to this function
-	var snorkel = function() {
+	// requires context
+	var multi = function() {
 		var iKey;
 
 		if (arguments.length > 2) {
@@ -281,7 +316,7 @@
 		// "snorkel()" get call; return store in its entirety as a JS object
 
 		if (!arguments.length) {
-			return snorkel.get();
+			return get();
 		}
 
 		iKey = arguments[0];
@@ -289,46 +324,44 @@
 		// "snorkel('id','foo')" set call
 
 		if (arguments.length === 2) {
-			return snorkel.set(iKey, arguments[1]);
+			return this.set(iKey, arguments[1]);
 		}
 
 		// "snorkel({id:123,name:'foo'})" set call; note that this only considers enumerable properties
 
 		if (_.isObject(iKey) && !_.isArray(iKey)) {
-			return snorkel.set(iKey);
+			return this.set(iKey);
 		}
 
 		// "snorkel('id')" get call
 
-		return snorkel.get(iKey);
+		return get(iKey);
 	};
 
-	snorkel.VERSION = '1.0';
+	// snorkel.noConflict = function() {
+	// 	var i;
 
-	snorkel.noConflict = function() {
-		var i;
+	// 	if (arguments.length) {
+	// 		_.each(arguments, function(arg) {
+	// 			if (arg in access) {
+	// 				global[arg] = access[arg]; // reset original reference
+	// 			}
+	// 		});
+	// 	} else {
+	// 		for (i in access) {
+	// 			global[i] = access[i];
+	// 		}
+	// 	}
 
-		if (arguments.length) {
-			_.each(arguments, function(arg) {
-				if (arg in access) {
-					global[arg] = access[arg]; // reset original reference
-				}
-			});
-		} else {
-			for (i in access) {
-				global[i] = access[i];
-			}
-		}
-
-		return snorkel;
-	};
+	// 	return snorkel;
+	// };
 
 	// iKey may be a non-empty string, number, or arbitrarily-nested array of such
 	// if single-key (ie, primitive) arg, returns corresponding decoded stored value; non-existent key yields undefined or iDefault if provided
 	// if multi-key (ie, array) arg, returns flat array of all corresponding decoded stored values; non-existent-key values are filled with undefined or iDefault if provided
 	// if no args, returns object representation of entire data store
 	// iDefault may be any value. If it's a function, the default value of the key is determined by the value of a call to the function, passing it the key.
-	snorkel.get = function(iKey, iDefault) {
+	var get = function(iKey, iDefault) {
 		var ret, i;
 
 		if (arguments.length > 2) {
@@ -340,7 +373,7 @@
 
 			for (i = 0; i < localStorage.length; i++) {
 				iKey = localStorage.key(i);
-				ret[iKey] = snorkel.get(iKey);
+				ret[iKey] = get(iKey);
 			}
 
 			return ret;
@@ -348,13 +381,13 @@
 
 		if (_.isArray(iKey)) {
 			return _.map(_.flatten(iKey), function(iKey) {
-				return snorkel.get(iKey, iDefault);
+				return get(iKey, iDefault);
 			});
 		}
 
 		checkKey(iKey);
 
-		if (_.isUndefined(iDefault) || snorkel.exists(iKey)) {
+		if (_.isUndefined(iDefault) || exists(iKey)) {
 			return getDecodedStoredValue(iKey);
 		}
 
@@ -365,12 +398,11 @@
 		}
 	};
 
-	snorkel.decodeValue = decodeValue;
-
 	// iKey can be a non-empty string, number, arbitrarily-nested array of such (in which case iValue is set for each key in the array), or set object (in which case iValue must not be passed)
 	// if single-key (ie, primitive) or multi-key (ie, array) arg, returns iValue.
 	// if set object, returns array of set values.
-	snorkel.set = function(iKey, iValue) {
+	// requires context
+	var set = function(iKey, iValue) {
 		var encodedValue, ret;
 
 		if (arguments.length === 1) {
@@ -387,9 +419,9 @@
 
 			ret = [];
 			_.each(iKey, function(iValue, iKey) {
-				setStoredValue(iKey, iValue);
+				setStoredValue.call(this, iKey, iValue);
 				ret.push(iValue);
-			});
+			}, this);
 
 			return ret;
 		}
@@ -411,10 +443,10 @@
 
 			encodedValue = encodeValue(iValue);
 			_.each(iKey, function(iKey) {
-				setStoredValue(iKey, iValue, encodedValue);
-			});
+				setStoredValue.call(this, iKey, iValue, encodedValue);
+			}, this);
 		} else if (checkKey(iKey)) {
-			setStoredValue(iKey, iValue);
+			setStoredValue.call(this, iKey, iValue);
 		}
 
 		return iValue;
@@ -424,7 +456,8 @@
 	// if single-key (ie, primitive) arg, return decoded stored value of removed item; non-existent key yields undefined or iDefault if provided
 	// if multi-key (ie, array) arg,  return flat array of decoded stored values of all removed items; non-existent-key values are filled with undefined or iDefault if provided
 	// if no args, remove all items and return object representation of entire (removed) data store.
-	snorkel.remove = function(iKey, iDefault) {
+	// requires context
+	var remove = function(iKey, iDefault) {
 		var storageData;
 
 		if (arguments.length > 2) {
@@ -442,40 +475,41 @@
 				});
 
 				return _.map(iKey, function(iKey) {
-					return snorkel.remove(iKey, iDefault);
-				});
+					return this.remove(iKey, iDefault);
+				}, this);
 			}
 
 			checkKey(iKey);
 
-			storageData = snorkel.get(iKey, iDefault);
-			if (snorkel.exists(iKey)) {
+			storageData = get(iKey, iDefault);
+			if (exists(iKey)) {
 				localStorage.removeItem(iKey);
-				if (emitRequired()) {
-					emit('removed', iKey, storageData);
+				if (this.canEmitLocally() && listeners.length || this.canEmitRemotely()) {
+					emit.call(this, 'removed', iKey, storageData);
 				}
 			}
 			return storageData;
 		}
 
 		// remove all stored items
-		storageData = snorkel.all();
+		storageData = all();
 		if (localStorage.length) {
 			localStorage.clear();
-			if (emitRequired()) {
+			if (this.canEmitLocally() && listeners.length || this.canEmitRemotely()) {
 				_.each(storageData, function(iValue, iKey) {
-					emit('removed', iKey, iValue);
-				});
+					emit.call(this, 'removed', iKey, iValue);
+				}, this);
 			}
 		}
 		return storageData;
 	};
 
-	snorkel.clear = function() {
-		snorkel.remove();
+	// requires context
+	var clear = function() {
+		this.remove();
 	};
 
-	snorkel.exists = snorkel.has = function(iKey) {
+	var exists = function(iKey) {
 		var i;
 
 		// consider the line below as an alternative to key enumeration. I don't think a localStorage value can ever be NULL (confirmed for Chrome (value BLOB NOT NULL); Didn't find anything specific on this in spec (http://www.w3.org/TR/webstorage/) other than that key and value must be DOMString (https://developer.mozilla.org/en/docs/Web/API/DOMString)). UPDATE: in FF v25, I was able to manually set a localStorage value to null. localStorage.getItem() subsequently returned null.
@@ -491,29 +525,29 @@
 		return false;
 	};
 
-	snorkel.key = function(iIndex) {
+	var key = function(iIndex) {
 		return localStorage.key(iIndex) || undefined;
 	};
 
 	// using 'count'/'size' because function 'length' property is not writeable. http://es5.github.io/#x15.3.5.1
-	snorkel.size = snorkel.count = function() {
+	var size = function() {
 		return localStorage.length;
 	};
 
 	// returns number of localStorage items
-	snorkel.each = function(iIterator) {
+	var each = function(iIterator) {
 		var key, i;
 
 		for (i = 0; i < localStorage.length; i++) {
 			key = localStorage.key(i);
-			iIterator(key, snorkel(key), i);
+			iIterator(key, get(key), i);
 		}
 
 		return i;
 	};
 
 	// HMM 2013-11-18: iSorted is redundant on Chrome since keys are sorted by default. Not so for FF. See: http://www.w3.org/TR/webstorage/#storage-0 ["...order of keys is user-agent defined..."]
-	snorkel.keys = function(iSorted) {
+	var keys = function(iSorted) {
 		var i, arr = [];
 
 		for (i = 0; i < localStorage.length; i++) {
@@ -527,63 +561,86 @@
 		return arr;
 	};
 
-	snorkel.values = function() {
+	var values = function() {
 		var i, arr = [];
 
 		for (i = 0; i < localStorage.length; i++) {
-			arr.push(snorkel(localStorage.key(i)));
+			arr.push(get(localStorage.key(i)));
 		}
 
 		return arr;
 	};
 
-	snorkel.all = snorkel.items = function() {
-		return snorkel();
+	var all = function() {
+		return get();
 	};
 
-	// accepts handler and one or more keySelector, where a keySelector is a string (literal, full match) or a RegExp object;  if no keySelector passed, handler applies to all items
-	// calls handler AFTER item matching associated keySelectors is impacted, passing key, value, and event type;
-	snorkel.on = snorkel.addKeyListener = function(iHandler) {
-		var listener, specifiedKeySelectors;
+	// accepts handler and a keySelector or array of keySelector, where a keySelector is a non-null string or number (for literal, full match) or a RegExp object;  if no keySelector passed, handler applies to all items
+	// calls handler AFTER item matching associated keySelectors is impacted, passing event type, key, value, and old value
+	// iOptions: 
+	//    scope: 'local', 'remote', or 'all' [default]; determines if event is raised only if snorkel change call occurred locally, only if snorkel change call occurred remotely, or both
+	//    alwaysFireOnUpdate: true, false [default]; determines whether to fire 'updated' event without regard to old vs. new values (ie, even when old and new value are the same)
+	var on = function(iHandler, iKeySelectors, iOptions) {
+		if (arguments.length < 1 || arguments.length > 3) {
+			throw 'snorkel on() call failed. 1-3 arguments expected, ' + arguments.length + ' present.';
+		}
 
-		if (_.isFunction(iHandler)) {
-			listener = _.find(listeners, function(el) {
-				return el.h === iHandler;
-			});
+		if (!_.isFunction(iHandler)) {
+			throw 'snorkel on() call failed. Expected function as first argument, received ' + toValueString(iHandler, '');
+		}
 
-			if (!listener) {
-				listeners.push(
-					listener = {
-					h: iHandler, // handler:
-					k: [] // keySelectors:
+		if (!_.isUndefined(iKeySelectors)) {
+			if (_.isArray(iKeySelectors)) {
+				iKeySelectors = _.flatten(iKeySelectors);
+
+				_.each(iKeySelectors, function(el, i) {
+					iKeySelectors[i] = normalizeKeySelector(el);
 				});
+
+				// iKeySelectors should now be a flat homogeneous array of RegExp elements
+			} else {
+				iKeySelectors = normalizeKeySelector(iKeySelectors);
+
+				// iKeySelectors should now be a RegExp
 			}
+		}
 
-			specifiedKeySelectors = _.flatten(Array.prototype.slice.call(arguments, 1));
+		var scope = (iOptions && (iOptions.scope === 'local' && 'local' || iOptions.scope === 'remote' && 'remote')) || 'all';
 
-			_.each(specifiedKeySelectors, function(el, i) {
-				if (isValidKey(el)) {
-					try {
-						specifiedKeySelectors[i] = new RegExp('^' + escapeRegExp(el) + '$');
-					} catch (ex) {}
-				}
+		var listener = _.find(listeners, function(el) {
+			return el.h === iHandler;
+		});
+
+		if (!listener) {
+			listeners.push(
+				listener = {
+				s: scope,
+				a: !! (iOptions && iOptions.alwaysFireOnUpdate), // alwaysFireOnUpdate
+				h: iHandler, // handler:
+				k: [] // keySelectors:
 			});
+		}
 
-			specifiedKeySelectors = _.filter(specifiedKeySelectors, function(el) {
-				return _.isRegExp(el);
-			});
-
-			// specifiedKeySelectors should now be a flat homogeneous array of RegExp elements
-
-			listener.k = _.uniq(listener.k.concat(specifiedKeySelectors), function(el) {
+		if (_.isUndefined(iKeySelectors)) {
+			listener.k = [];
+		} else {
+			listener.k = _.uniq(listener.k.concat(iKeySelectors), function(el) {
 				return el.source + el.ignoreCase;
 			});
+		}
+
+		if (scope === 'remote' || scope === 'all') {
+			if (!remoteEventListenerCount) {
+				originEvents.on('snorkel', snorkelEventHander, 'remote');
+			}
+
+			remoteEventListenerCount++;
 		}
 
 		// console.dir(listeners);
 	};
 
-	snorkel.off = snorkel.removeKeyListener = function(iHandler) {
+	var off = function(iHandler) {
 		var index, listener;
 
 		if (_.isFunction(iHandler)) {
@@ -596,6 +653,14 @@
 			});
 
 			if (!_.isUndefined(index)) {
+				if (listener.s === 'remote' || listener.s === 'all') {
+					remoteEventListenerCount--;
+
+					if (!remoteEventListenerCount) {
+						originEvents.off('snorkel', snorkelEventHander);
+					}
+				}
+
 				listeners.splice(index, 1);
 			}
 
@@ -603,24 +668,69 @@
 		}
 	};
 
-	snorkel.silent = function(iSilent) {
+	// requires context
+	var canEmitLocally = function(iCanEmitLocally) {
 		if (arguments.length) {
-			emitEnabled = !iSilent;
+			this._canEmitLocally = iCanEmitLocally;
 		}
 
-		return emitEnabled;
+		return this._canEmitLocally;
 	};
 
-	if (typeof define === 'function' && define.amd) {
-		define('snorkel', function() {
-			return snorkel;
-		});
-	} else if (typeof module === 'object' && module.exports) {
-		module.exports = snorkel;
-	} else {
-		for (i in access) {
-			global[i] = snorkel;
+	// requires context
+	var canEmitRemotely = function(iCanEmitRemotely) {
+		if (arguments.length) {
+			this._canEmitRemotely = iCanEmitRemotely;
 		}
+
+		return this._canEmitRemotely;
+	};
+
+	// initializes and returns a snorkel context
+	var snorkelInit = function(iCanEmitLocally, iCanEmitRemotely) {
+		var ret = function() {
+			return multi.apply(ret, arguments);
+		};
+
+		ret.get = get;
+		ret.set = set;
+		ret.remove = remove;
+		ret.clear = clear;
+		ret.exists = ret.has = exists;
+		ret.key = key;
+		ret.size = ret.count = size;
+		ret.each = each;
+		ret.keys = keys;
+		ret.values = values;
+		ret.all = ret.items = all;
+		ret.on = ret.addKeyListener = on;
+		ret.off = ret.removeKeyListener = off;
+		ret.canEmitLocally = canEmitLocally;
+		ret.canEmitRemotely = canEmitRemotely;
+		ret.decodeValue = decodeValue;
+		ret.version = VERSION;
+
+		ret.canEmitLocally(_.isUndefined(iCanEmitLocally) || iCanEmitLocally);
+		ret.canEmitRemotely(_.isUndefined(iCanEmitRemotely) || iCanEmitRemotely);
+
+		if (!originEvents) {
+			originEvents = true;
+			originEvents = global.originEventsInit(false, true);
+		}
+
+		return ret;
+	};
+
+	// if (typeof define === 'function' && define.amd) {
+	// 	define('snorkelInit', function() {
+	// 		return snorkelInit;
+	// 	});
+	// } else if (typeof module === 'object' && module.exports) {
+	// 	module.exports = snorkelInit;
+	// } else {
+	for (i in access) {
+		global[i] = snorkelInit;
 	}
+	// }
 
 }).call(this);

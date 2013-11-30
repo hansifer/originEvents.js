@@ -11,6 +11,8 @@
         -ms-user-select:none;
         font-family: helvetica, arial, sans-serif;
         font-size: 12px;
+        padding:0px;
+        margin:0px;
       }
 
       input[type="checkbox"] {
@@ -76,18 +78,20 @@
         display:none;
         opacity:0;
         float:left;
-        width:270px;
+        width:140px;
         position:fixed;
+        xbackground: hsl(0,0%,90%);
+        padding:10px;
       }
 
       #output {
         float:right;
-        width: 360px;
-        padding-top: 4px;
+        width: 250px;
+        padding-top: 12px;
       }
 
       .wrapper {
-        width: 480px;
+        width: 450px;
       }
     </style>
   </head>
@@ -97,9 +101,10 @@
         <button id="boom" class="boom">Boom!</button>
         <button id="bang" class="bang">Bang!</button>
         <button id="bing" class="bing">Bing!</button>
-        <div style="margin-top:30px;visibility:hidden;"><input id="cbTriggerEnabled" type="checkbox" /><label for="cbTriggerEnabled">Trigger</label></div>
-        <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Local Listener</label></div>
-        <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Remote Listener</label></div>
+        <div style="margin-top:9px;visibility:visisble;"><input id="cbCanEmitLocally" type="checkbox" /><label for="cbCanEmitLocally">Emit Locally</label></div>
+        <div style="visibility:visisble;"><input id="cbCanEmitRemotely" type="checkbox" /><label for="cbCanEmitRemotely">Emit Remotely</label></div>
+        <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Can Hear Locally</label></div>
+        <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Can Hear Remotely</label></div>
       </header>
 
       <div id="output"></div>
@@ -111,44 +116,69 @@
     <script src="js/snorkel.js"></script>
     <script src="js/originEvents.js"></script>
     <script>
-      // add listener
-      originEvents.on('commotion', function(isLocal){
-        outputEvent(this.message, this.datetime, isLocal);
-      });
+      var originEvents = originEventsInit();
+      
+      $('#boom').on('click', function () { originEvents.trigger('commotion', 'boom')});
+      $('#bang').on('click', function () { originEvents.trigger('commotion', 'bang')});
+      $('#bing').on('click', function () { originEvents.trigger('commotion', 'bing')});
 
-      // trigger event
-      function triggerCommotion(noise){
-        originEvents.trigger('commotion', noise);
+      function outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent){
+          iMessage = '<span class="' + iMessage + '" style="border-radius: 2px;padding:2px 4px;">' + iMessage + '</span>';
+          $('<div class="output_lineitem">' + (iIsRemoteEvent ? 'Remote&nbsp;' : 'Local&nbsp;&nbsp;') + iMessage  + ' at ' + padNumber(iDatetime.getHours()) + ':' + padNumber(iDatetime.getMinutes()) + ':' + padNumber(iDatetime.getSeconds()) + '</div>').prependTo($('#output')).delay(5000).hide('fade');
       }
 
-      $('#boom').on('click', function () { triggerCommotion('boom')});
-      $('#bang').on('click', function () { triggerCommotion('bang')});
-      $('#bing').on('click', function () { triggerCommotion('bing')});
+      function outputEvent_All(iType, iMessage, iDatetime, iIsRemoteEvent) {
+        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
+      }
 
-      function outputEvent(type, datetime, isLocal) {
-        type = '<span class="' + type + '" style="border-radius: 2px;padding:2px 4px;">' + type + '</span>';
-        $('<div class="output_lineitem">' + (isLocal ? 'Local&nbsp;&nbsp;' : 'Remote&nbsp;') + type  + ' at ' + padNumber(datetime.getHours()) + ':' + padNumber(datetime.getMinutes()) + ':' + padNumber(datetime.getSeconds()) + '</div>').prependTo($('#output')).delay(10000).hide('fade');
+      function outputEvent_Remote(iType, iMessage, iDatetime, iIsRemoteEvent) {
+        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
+      }
+
+      function outputEvent_Local(iType, iMessage, iDatetime, iIsRemoteEvent) {
+        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
       }
 
       function padNumber(num) {
         return (num < 10 ? '0' : '') + num;
       }
 
-      $('#cbTriggerEnabled').prop('checked', originEvents.triggerEnabled());
-      $('#cbLocalListenerEnabled').prop('checked', originEvents.localListenerEnabled());
-      $('#cbRemoteListenerEnabled').prop('checked', originEvents.remoteListenerEnabled());
+      function registerOutputListener() {
+        originEvents.off('commotion');
 
-      $('#cbTriggerEnabled').on('change', function () {
-        originEvents.triggerEnabled(this.checked);
+        if ($('#cbLocalListenerEnabled').prop('checked') === true) {
+          if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
+            originEvents.on('commotion', outputEvent_All, 'all');
+          } else {
+            originEvents.on('commotion', outputEvent_Local, 'local');
+          }
+        } else if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
+            originEvents.on('commotion', outputEvent_Remote, 'remote');
+        }
+      }
+
+      $('#cbCanEmitLocally').prop('checked', originEvents.canEmitLocally());
+      $('#cbCanEmitRemotely').prop('checked', originEvents.canEmitRemotely());
+      $('#cbLocalListenerEnabled').prop('checked',true);
+      $('#cbRemoteListenerEnabled').prop('checked', true);
+
+      $('#cbCanEmitLocally').on('change', function () {
+        originEvents.canEmitLocally(this.checked);
+      });
+
+      $('#cbCanEmitRemotely').on('change', function () {
+        originEvents.canEmitRemotely(this.checked);
       });
 
       $('#cbLocalListenerEnabled').on('change', function () {
-        originEvents.localListenerEnabled(this.checked);
+        registerOutputListener();
       });
 
       $('#cbRemoteListenerEnabled').on('change', function () {
-        originEvents.remoteListenerEnabled(this.checked);
+        registerOutputListener();
       });
+
+      registerOutputListener();
     </script>
     <script>$('header').css('display', '').fadeTo('slow', 1)</script>
   </body>
