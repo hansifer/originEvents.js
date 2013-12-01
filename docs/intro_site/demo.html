@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>originEvents.js Demo</title>
+    <link rel="stylesheet" type="text/css" href="css/checkbox.css" media="screen" />
     <style>
       body {
         background: #eee;
@@ -15,13 +16,7 @@
         margin:0px;
       }
 
-      input[type="checkbox"] {
-        cursor: pointer;
-        vertical-align: middle;
-      }
-
       label {
-        cursor: pointer;
         color: rgb(48, 48, 48);
         vertical-align: middle;
       }
@@ -113,10 +108,12 @@
         <button id="boom" class="boom">Boom!</button>
         <button id="bang" class="bang">Bang!</button>
         <button id="bing" class="bing">Bing!</button>
-        <div style="margin-top:9px;visibility:visible;"><input id="cbCanEmitLocally" type="checkbox" /><label for="cbCanEmitLocally">Emit Locally</label></div>
-        <div style="visibility:visible;"><input id="cbCanEmitRemotely" type="checkbox" /><label for="cbCanEmitRemotely">Emit Remotely</label></div>
-        <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Listen Locally</label></div>
-        <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Listen Remotely</label></div>
+        <div style="margin-left:3px;">
+          <div style="margin-top:9px;visibility:visible;"><input id="cbCanEmitLocally" type="checkbox" class="css-checkbox"/><label for="cbCanEmitLocally" class="css-label">Emit Locally</label></div>
+          <div style="visibility:visible;"><input id="cbCanEmitRemotely" type="checkbox" class="css-checkbox"/><label for="cbCanEmitRemotely" class="css-label">Emit Remotely</label></div>
+          <div><input id="cbLocalListenerEnabled" type="checkbox" class="css-checkbox"/><label for="cbLocalListenerEnabled" class="css-label">Listen Locally</label></div>
+          <div><input id="cbRemoteListenerEnabled" type="checkbox" class="css-checkbox"/><label for="cbRemoteListenerEnabled" class="css-label">Listen Remotely</label></div>
+        </div>
       </header>
 
       <div id="output"></div>
@@ -159,6 +156,8 @@
 
       $('#cbCanEmitLocally').prop('checked', originEvents.canEmitLocally());
       $('#cbCanEmitRemotely').prop('checked', originEvents.canEmitRemotely());
+      $('#cbLocalListenerEnabled').prop('checked', true);
+      $('#cbRemoteListenerEnabled').prop('checked', true);
 
       $('#cbCanEmitLocally').on('change', function () {
         originEvents.canEmitLocally(this.checked);
@@ -168,8 +167,6 @@
         originEvents.canEmitRemotely(this.checked);
       });
 
-      $('#cbLocalListenerEnabled').prop('checked', true);
-
       $('#cbLocalListenerEnabled').on('change', function () {
         registerOutputListener();
       });
@@ -178,7 +175,7 @@
         registerOutputListener();
       });
 
-      $('#cbRemoteListenerEnabled').prop('checked', true);
+      registerOutputListener();
     </script>
     <script>$('header').css('display', '').fadeTo('slow', 1)</script>
   </body>
