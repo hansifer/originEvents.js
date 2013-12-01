@@ -108,7 +108,7 @@ Also, there isn’t to my knowledge a current alternative providing similar feat
 
 ####Isn’t This a Performance Liability?
 
-The short answer is *no*, but there are multiple factors to consider. It's interesting to note that on Chrome (and possibly others), the way originEvents leverages localStorage does not actually incur any disk I/O.
+The short answer is *no*, but there are multiple factors to consider. It's interesting to note that on Chrome (and likely others), because of the way that originEvents leverages localStorage, it never incurs disk I/O.
 
 Here's [a pretty good article by Nicholas Zakas on localStorage performance](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/).
 
