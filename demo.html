@@ -16,6 +16,18 @@
       }
 
       input[type="checkbox"] {
+        cursor: pointer;
+        vertical-align: middle;
+      }
+
+      label {
+        cursor: pointer;
+        color: rgb(48, 48, 48);
+        vertical-align: middle;
+      }
+
+      label:hover {
+        text-decoration: underline;
       }
 
       button {
@@ -101,8 +113,8 @@
         <button id="boom" class="boom">Boom!</button>
         <button id="bang" class="bang">Bang!</button>
         <button id="bing" class="bing">Bing!</button>
-        <div style="margin-top:9px;visibility:visisble;"><input id="cbCanEmitLocally" type="checkbox" /><label for="cbCanEmitLocally">Emit Locally</label></div>
-        <div style="visibility:visisble;"><input id="cbCanEmitRemotely" type="checkbox" /><label for="cbCanEmitRemotely">Emit Remotely</label></div>
+        <div style="margin-top:9px;visibility:visible;"><input id="cbCanEmitLocally" type="checkbox" /><label for="cbCanEmitLocally">Emit Locally</label></div>
+        <div style="visibility:visible;"><input id="cbCanEmitRemotely" type="checkbox" /><label for="cbCanEmitRemotely">Emit Remotely</label></div>
         <div><input id="cbLocalListenerEnabled" type="checkbox" /><label for="cbLocalListenerEnabled">Listen Locally</label></div>
         <div><input id="cbRemoteListenerEnabled" type="checkbox" /><label for="cbRemoteListenerEnabled">Listen Remotely</label></div>
       </header>
@@ -127,40 +139,26 @@
           $('<div class="output_lineitem">' + (iIsRemoteEvent ? 'Remote&nbsp;' : 'Local&nbsp;&nbsp;') + iMessage  + ' at ' + padNumber(iDatetime.getHours()) + ':' + padNumber(iDatetime.getMinutes()) + ':' + padNumber(iDatetime.getSeconds()) + '</div>').prependTo($('#output')).delay(5000).hide('fade');
       }
 
-      function outputEvent_All(iType, iMessage, iDatetime, iIsRemoteEvent) {
-        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
-      }
+      function registerOutputListener() {
+        originEvents.off('commotion');
 
-      function outputEvent_Remote(iType, iMessage, iDatetime, iIsRemoteEvent) {
-        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
-      }
-
-      function outputEvent_Local(iType, iMessage, iDatetime, iIsRemoteEvent) {
-        outputEvent(iType, iMessage, iDatetime, iIsRemoteEvent);
+        if ($('#cbLocalListenerEnabled').prop('checked') === true) {
+          if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
+            originEvents.on('commotion', outputEvent, 'all');
+          } else {
+            originEvents.on('commotion', outputEvent, 'local');
+          }
+        } else if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
+            originEvents.on('commotion', outputEvent, 'remote');
+        }
       }
 
       function padNumber(num) {
         return (num < 10 ? '0' : '') + num;
       }
 
-      function registerOutputListener() {
-        originEvents.off('commotion');
-
-        if ($('#cbLocalListenerEnabled').prop('checked') === true) {
-          if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
-            originEvents.on('commotion', outputEvent_All, 'all');
-          } else {
-            originEvents.on('commotion', outputEvent_Local, 'local');
-          }
-        } else if ($('#cbRemoteListenerEnabled').prop('checked') === true) {
-            originEvents.on('commotion', outputEvent_Remote, 'remote');
-        }
-      }
-
       $('#cbCanEmitLocally').prop('checked', originEvents.canEmitLocally());
       $('#cbCanEmitRemotely').prop('checked', originEvents.canEmitRemotely());
-      $('#cbLocalListenerEnabled').prop('checked',true);
-      $('#cbRemoteListenerEnabled').prop('checked', true);
 
       $('#cbCanEmitLocally').on('change', function () {
         originEvents.canEmitLocally(this.checked);
@@ -170,6 +168,8 @@
         originEvents.canEmitRemotely(this.checked);
       });
 
+      $('#cbLocalListenerEnabled').prop('checked', true);
+
       $('#cbLocalListenerEnabled').on('change', function () {
         registerOutputListener();
       });
@@ -178,7 +178,7 @@
         registerOutputListener();
       });
 
-      registerOutputListener();
+      $('#cbRemoteListenerEnabled').prop('checked', true);
     </script>
     <script>$('header').css('display', '').fadeTo('slow', 1)</script>
   </body>
