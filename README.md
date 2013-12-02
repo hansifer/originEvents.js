@@ -47,7 +47,7 @@ Triggers an event of *eventType*, passing *message*.
 originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
 ###canEmitLocally ([```boolean``` *canEmitLocally*])
-Gets or sets whether originEvents.js emits locally-triggered events locally (ie, within the same global context).
+Gets or sets whether the associated originEvents context object emits locally-triggered events locally (ie, within the same global context).
 ```js
 // prevent locally-triggered events from being emitted locally
 originEvents.canEmitLocally(false);  
@@ -56,7 +56,7 @@ originEvents.canEmitLocally(false);
 originEvents.canEmitLocally();       
 ```
 ###canEmitRemotely ([```boolean``` *canEmitRemotely*])
-Gets or sets whether originEvents.js emits locally-triggered events to remote tabs/iframes/popups.
+Gets or sets whether the associated originEvents context object emits locally-triggered events to remote tabs/iframes/popups.
 ```js
 // prevent locally-triggered events from being emitted to remote tabs/iframes/popups
 originEvents.canEmitRemotely(false);  
@@ -125,6 +125,6 @@ Compensating for the first exception is trivial. The second requires reliance on
 Alternatives
 ---
 
-JavaScript has had support for communication across same-origin windows for some time. More recently, [```window.postMessage()```](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** communication as well. 
+JavaScript has supported *targeted* communication across same-origin iframes and popups for some time. More recently, [```window.postMessage()```](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** targeted communication as well. 
 
 While the established approaches work fine for communicating across iframes/frames and windows created by ```window.open()```, their reliance on ```window``` "handles" keeps browser **tabs** out of their reach.
