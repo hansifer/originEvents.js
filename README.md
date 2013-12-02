@@ -92,23 +92,23 @@ Gzipped:   ~ 0.4k
 
 ####Remote Events
 
-When an event is triggered by an application via ```originEvents.trigger()```, originEvents.js uses [snorkel.js](http://hansifer.github.io/snorkel.js/) to set a custom event object (ie, an originEvent) that includes the event type, timestamp, and message (which can be a JavaScript primitive, Date, RegExp, null, undefined, or an object/array comprising such). This triggers the 'storage' event and queues up any associated handler calls in each same-origin global context (tab, iframe, popup) that exists in the current browser instance. The snorkel set is immediately followed by a localStorage.removeItem() call to clean up the dispatched event.
+When an event is triggered by an application via ```originEvents.trigger()```, originEvents.js uses [snorkel.js](http://hansifer.github.io/snorkel.js/) to set a custom event object (ie, an originEvent) that includes the event type, timestamp, and message (which can be a JavaScript primitive, Date, RegExp, null, undefined, or an object/array comprising such). This triggers the 'storage' event and queues up any associated handler calls in each same-origin global context (tab, iframe, popup) that exists in the current browser instance. The snorkel set is immediately followed by a localStorage.removeItem() call to clean up the dispatched event, which in most modern browsers prevents associated disk I/O.
 
 ####Local Events
 
-Local events are implemented similarly to many event libraries (ie, trigger leads to direct handler call).
+Local (ie, same global context) events are implemented similarly to many event libraries (ie, trigger leads to direct handler call).
 
 ####Isn’t This a Hack?
 
 Yes. Yes it is.
 
-But only in the sense that we're making use of an established browser facility in a manner that is different from its intended use, which doesn't say anything about viability. 
+But only in the sense that we're making use of an established browser facility in a manner that is different from its intended use, which doesn't inform viability. 
 
-Also, there isn’t to my knowledge a current alternative providing similar features. Particularly, offline cross-tab events (ie, non-targeted messages).
+Also, there doesn't seem to be a current alternative providing similar features. Particularly, offline cross-tab events (ie, non-targeted messages).
 
 ####Isn’t This a Performance Liability?
 
-Not in most cases. Because of the way originEvents.js leverages localStorage, it never incurs disk I/O. The exception to this that was found during testing is IE10, which writes localStorage sets immediately (to an xml file). This produces a perceptible lag between triggering and handling a cross-tab event, which can be observed [here](http://hansifer.github.io/originEvents.js/).
+Not in most cases. Because of the way originEvents.js leverages localStorage, it never incurs disk I/O. The exception to this that was found during testing is IE10, which writes localStorage sets immediately (to an xml file). This produces a perceptible lag between triggering and handling a cross-tab event that can be observed [here](http://hansifer.github.io/originEvents.js/).
 
 For more detail on localStorage performance, there's [this pretty good article by Nicholas Zakas](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/).
 
