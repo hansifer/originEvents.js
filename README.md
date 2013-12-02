@@ -12,7 +12,7 @@ originEvents.js was initially created as a proof-of-concept for a [snorkel.js](h
 How Does It Work?
 ---
 
-In a nutshell, originEvents.js implements cross-tab events by setting a temporary localStorage item with a custom event object. Such an event is received remotely by same-origin tabs, iframes, and popups via the 'storage' event of [Web Storage](http://www.w3.org/TR/webstorage/). Local (ie, same global context) events are implemented through standard means. For additional technical details, [read on](#technical-notes).
+In a nutshell, originEvents.js broadcasts events across tabs by setting a temporary localStorage item with a custom event object. Such an event is received by all same-origin tabs, iframes, and popups via the 'storage' event of [Web Storage](http://www.w3.org/TR/webstorage/). Local (ie, same global context) events are implemented with a conventional approach. For additional technical details, [read on below](#technical-notes).
 
 API
 ---
@@ -108,9 +108,9 @@ Also, there isn’t to my knowledge a current alternative providing similar feat
 
 ####Isn’t This a Performance Liability?
 
-The short answer is *no*, but there are multiple factors to consider. It's interesting to note that on Chrome (and likely others), because of the way that originEvents leverages localStorage, it never incurs disk I/O.
+Not in most cases. Because of the way originEvents.js leverages localStorage, it never incurs disk I/O. The exception to this that was found during testing is IE10, which writes localStorage sets immediately (to an xml file). This produces a perceptible lag between triggering and handling a cross-tab event, which can be observed [here](http://hansifer.github.io/originEvents.js/).
 
-Here's [a pretty good article by Nicholas Zakas on localStorage performance](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/).
+For more detail on localStorage performance, there's [this pretty good article by Nicholas Zakas](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/).
 
 ###Internet Explorer Support
 
