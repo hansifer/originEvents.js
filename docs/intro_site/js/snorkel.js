@@ -243,7 +243,7 @@
 		for (i = 0; i < listeners.length; i++) {
 			// console.log(listeners[i].h.name);
 			for (j = 0; j < listeners[i].k.length; j++) {
-				if (listeners[i].k[j].test(iKey) && (iEventType !== 'updated' || listeners[i].a === true || iValue !== iOldValue) && (listeners[i].s === 'all' || ((listeners[i].s === 'remote' && isRemoteEvent) || (listeners[i].s === 'local' && !isRemoteEvent)))) {
+				if (listeners[i].k[j].test(iKey) && (iEventType !== 'updated' || listeners[i].a === true || !_.isEqual(iValue, iOldValue)) && (listeners[i].s === 'all' || ((listeners[i].s === 'remote' && isRemoteEvent) || (listeners[i].s === 'local' && !isRemoteEvent)))) {
 					// console.log('match test SUCCESS:', listeners[i].k[j].source, iKey);
 					break; // only one call per handler even if multiple keySelectors qualify
 					// } else {
@@ -252,7 +252,7 @@
 			}
 
 			if (j === 0 || j < listeners[i].k.length) {
-				listeners[i].h(iEventType, iKey, iValue, (arguments.length === 3 ? iValue : iOldValue), isRemoteEvent);
+				listeners[i].h(iEventType, iKey, iValue, iOldValue, isRemoteEvent);
 			}
 		}
 	};
@@ -267,8 +267,8 @@
 		return iKeySelector;
 	};
 
-	var snorkelEventHander = function() {
-		emitLocally(this.type, this.key, this.value, this.oldValue, true);
+	var snorkelEventHandler = function(iType, iMessage /*, iDatetime, isRemoteEvent */ ) {
+		emitLocally(iMessage.type, iMessage.key, iMessage.value, iMessage.oldValue, true);
 	};
 
 	// --- UTIL ---
@@ -283,6 +283,10 @@
 			if (_.isObject(iObj)) {
 				if (_.isFunction(iObj)) {
 					return '[function]';
+				}
+
+				if (_.isRegExp(iObj)) {
+					return '[RegExp] ' + iObj.source;
 				}
 
 				return JSON.stringify(iObj); // TODO: not great because it converts the following property values to null: undefined, NaN, Infinity, -Infinity; call toValueString() recursively instead for arrays and objects (will need to detect cycles)
@@ -307,15 +311,15 @@
 	// HMM 2013-11-23: NOTE: do not add formal parameters to this function
 	// requires context
 	var multi = function() {
-		var iKey;
+		var iKey, l = arguments.length;
 
-		if (arguments.length > 2) {
-			throw 'snorkel call failed. 0-2 arguments expected, ' + arguments.length + ' present.';
+		if (l > 2) {
+			throw 'snorkel call failed. 0-2 arguments expected, ' + l + ' present.';
 		}
 
 		// "snorkel()" get call; return store in its entirety as a JS object
 
-		if (!arguments.length) {
+		if (!l) {
 			return get();
 		}
 
@@ -323,13 +327,13 @@
 
 		// "snorkel('id','foo')" set call
 
-		if (arguments.length === 2) {
+		if (l === 2) {
 			return this.set(iKey, arguments[1]);
 		}
 
 		// "snorkel({id:123,name:'foo'})" set call; note that this only considers enumerable properties
 
-		if (_.isObject(iKey) && !_.isArray(iKey)) {
+		if (_.isObject(iKey) && !_.isArray(iKey) && !_.isRegExp(iKey)) {
 			return this.set(iKey);
 		}
 
@@ -379,10 +383,14 @@
 			return ret;
 		}
 
+		if (_.isRegExp(iKey)) {
+			return get(keys(true, iKey)); // iDefault is moot, so don't pass it
+		}
+
 		if (_.isArray(iKey)) {
-			return _.map(_.flatten(iKey), function(iKey) {
+			return _.flatten(_.map(iKey, function(iKey) {
 				return get(iKey, iDefault);
-			});
+			}));
 		}
 
 		checkKey(iKey);
@@ -406,7 +414,7 @@
 		var encodedValue, ret;
 
 		if (arguments.length === 1) {
-			if (!_.isObject(iKey) || _.isArray(iKey)) {
+			if (!_.isObject(iKey) || _.isArray(iKey) || _.isRegExp(iKey)) {
 				throw 'snorkel set failed. Calling set() with a single argument requires a set object, but actual argument is ' + toValueString(iKey, '');
 			}
 
@@ -432,14 +440,24 @@
 
 		checkValue(iValue);
 
+		if (_.isRegExp(iKey)) {
+			return set.call(this, keys(true, iKey), iValue);
+		}
+
 		if (_.isArray(iKey)) {
 			iKey = _.flatten(iKey);
 
 			// check each key first to make set atomic
 
-			_.each(iKey, function(iKey) {
-				checkKey(iKey);
+			_.each(iKey, function(el, i) {
+				if (_.isRegExp(el)) {
+					iKey[i] = keys(true, el);
+				} else {
+					checkKey(el);
+				}
 			});
+
+			iKey = _.uniq(_.flatten(iKey));
 
 			encodedValue = encodeValue(iValue);
 			_.each(iKey, function(iKey) {
@@ -455,7 +473,7 @@
 	// iKey may be a non-empty string, number, or arbitrarily-nested array of such
 	// if single-key (ie, primitive) arg, return decoded stored value of removed item; non-existent key yields undefined or iDefault if provided
 	// if multi-key (ie, array) arg,  return flat array of decoded stored values of all removed items; non-existent-key values are filled with undefined or iDefault if provided
-	// if no args, remove all items and return object representation of entire (removed) data store.
+	// if no args, remove all items and return object representation of entire (removed) data store
 	// requires context
 	var remove = function(iKey, iDefault) {
 		var storageData;
@@ -465,14 +483,24 @@
 		}
 
 		if (arguments.length) {
+			if (_.isRegExp(iKey)) {
+				return remove.call(this, keys(true, iKey)); // iDefault is moot, so don't pass it
+			}
+
 			if (_.isArray(iKey)) {
 				iKey = _.flatten(iKey);
 
 				// check each key first to make remove atomic
 
-				_.each(iKey, function(iKey) {
-					checkKey(iKey);
+				_.each(iKey, function(el, i) {
+					if (_.isRegExp(el)) {
+						iKey[i] = keys(true, el);
+					} else {
+						checkKey(el);
+					}
 				});
+
+				iKey = _.uniq(_.flatten(iKey));
 
 				return _.map(iKey, function(iKey) {
 					return this.remove(iKey, iDefault);
@@ -509,20 +537,24 @@
 		this.remove();
 	};
 
+	// iKey can be string, regexp, or array of such
+	// if iKey is undefined, returns false if store is empty, otherwise true
 	var exists = function(iKey) {
-		var i;
+		// var i;
 
 		// consider the line below as an alternative to key enumeration. I don't think a localStorage value can ever be NULL (confirmed for Chrome (value BLOB NOT NULL); Didn't find anything specific on this in spec (http://www.w3.org/TR/webstorage/) other than that key and value must be DOMString (https://developer.mozilla.org/en/docs/Web/API/DOMString)). UPDATE: in FF v25, I was able to manually set a localStorage value to null. localStorage.getItem() subsequently returned null.
 		// return localStorage.getItem(iKey) !== null;
 
-		iKey = iKey.toString();
-		for (i = localStorage.length - 1; i >= 0; i--) {
-			if (localStorage.key(i) === iKey) {
-				return true;
-			}
-		}
+		// iKey = iKey.toString();
+		// for (i = localStorage.length - 1; i >= 0; i--) {
+		// 	if (localStorage.key(i) === iKey) {
+		// 		return true;
+		// 	}
+		// }
 
-		return false;
+		// return false;
+
+		return !!keys(false, iKey, true).length; // not super efficient but clean
 	};
 
 	var key = function(iIndex) {
@@ -547,18 +579,51 @@
 	};
 
 	// HMM 2013-11-18: iSorted is redundant on Chrome since keys are sorted by default. Not so for FF. See: http://www.w3.org/TR/webstorage/#storage-0 ["...order of keys is user-agent defined..."]
-	var keys = function(iSorted) {
-		var i, arr = [];
+	// if iKeySelectors, filter the returned set of keys accordingly
+	var keys = function(iSorted, iKeySelectors, iStopAtFirstMatch, iArr) {
+		var i;
 
-		for (i = 0; i < localStorage.length; i++) {
-			arr.push(localStorage.key(i));
+		if (!iArr) {
+			iArr = [];
+		}
+
+		if (arguments.length === 1) {
+			if (!_.isBoolean(iSorted)) {
+				iKeySelectors = iSorted;
+				iSorted = undefined;
+			}
+		}
+
+		if (_.isArray(iKeySelectors)) {
+			for (i = 0; i < iKeySelectors.length; i++) {
+				if (keys(false, iKeySelectors[i], iStopAtFirstMatch, iArr).length && iStopAtFirstMatch) {
+					return iArr;
+				}
+			}
+
+			iArr = _.uniq(_.flatten(iArr));
+		} else if (!_.isUndefined(iKeySelectors) && !_.isRegExp(iKeySelectors) && !isValidKey(iKeySelectors)) {
+			throw 'snorkel keys() failed. Not a valid key selector: ' + toValueString(iKeySelectors, '');
+		} else {
+			for (i = 0; i < localStorage.length; i++) {
+				if (!iKeySelectors || (_.isRegExp(iKeySelectors) && iKeySelectors.test(localStorage.key(i)))) {
+					iArr.push(localStorage.key(i));
+				} else if (isValidKey(iKeySelectors) && iKeySelectors.toString() === localStorage.key(i)) {
+					iArr.push(localStorage.key(i));
+					break;
+				}
+
+				if (iStopAtFirstMatch && iArr.length) {
+					return iArr;
+				}
+			}
 		}
 
 		if (iSorted) {
-			return arr.sort();
+			return iArr.sort();
 		}
 
-		return arr;
+		return iArr;
 	};
 
 	var values = function() {
@@ -631,7 +696,7 @@
 
 		if (scope === 'remote' || scope === 'all') {
 			if (!remoteEventListenerCount) {
-				originEvents.on('snorkel', snorkelEventHander, 'remote');
+				originEvents.on('snorkel', snorkelEventHandler, 'remote');
 			}
 
 			remoteEventListenerCount++;
@@ -657,7 +722,7 @@
 					remoteEventListenerCount--;
 
 					if (!remoteEventListenerCount) {
-						originEvents.off('snorkel', snorkelEventHander);
+						originEvents.off('snorkel', snorkelEventHandler);
 					}
 				}
 
