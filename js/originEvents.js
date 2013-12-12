@@ -22,12 +22,15 @@
 
 	// called when 'storage' event is raised
 	var storageEventHandler = function(e) {
-		console.dir(e);
 		var originEvent;
 
 		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses empty string instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
+			console.dir(e);
+			e.cancelBubble = true;
+			e.stopPropagation();
+
 			originEvent = snorkel.decodeValue(e.newValue);
 			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
 		}
