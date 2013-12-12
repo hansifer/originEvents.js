@@ -28,12 +28,16 @@
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
 			console.dir(e);
-			// e.cancelBubble = true;
-			// e.stopPropagation();
+			e.cancelBubble = true;
+			e.stopPropagation();
+			e.preventDefault();
+
 
 			originEvent = snorkel.decodeValue(e.newValue);
 			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
 		}
+
+		return false;
 	};
 
 	var emitLocally = function(iType, iMessage, iDatetime, isRemoteEvent) {
