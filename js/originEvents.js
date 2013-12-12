@@ -22,7 +22,7 @@
 
 	// called when 'storage' event is raised
 	var storageEventHandler = function(e) {
-		console.log(e);
+		console.dir(e);
 		var originEvent;
 
 		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses empty string instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
