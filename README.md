@@ -44,7 +44,8 @@ originEvents.off('registration_complete');  // remove all handlers for eventType
 ###trigger (```string``` *eventType* [, ```any``` *message*])
 Triggers an event of *eventType*, passing *message*.
 ```js
-originEvents.trigger('registration_complete', { username: 'lorem', email: 'lorem@ipsum.com' });
+originEvents.trigger('registration_complete', 
+   { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
 ###canEmitLocally ([```boolean``` *canEmitLocally*])
 Gets or sets whether the associated originEvents context object emits locally-triggered events locally (ie, within the same global context).
@@ -114,13 +115,21 @@ For more detail on localStorage performance, there's [this pretty good article b
 
 ###Internet Explorer Support
 
-IE goes against the 'storage' event spec in two ways that we need to make special accommodation for:
+IE goes against the 'storage' event [spec](http://www.w3.org/TR/webstorage/) in two ways that we need to make special accommodation for:
 
 1)	IE uses empty string instead of ```null``` for ```e.oldValue``` and ```e.newValue``` StorageEvent properties when items are added and removed, respectively.
 
 2)	IE raises locally-initiated 'storage' events in addition to remote ones.
 
 Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-initiated events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a ```window```, so we’ll use this key name to filter locally-initiated events passing through the 'storage' event handler. Making use of UUIDs to establish ```window``` identity is not bullet-proof, but operationally it’s good enough, at least for now.
+
+####Internet Explorer 11
+
+In addition to the above, Internet Explorer 11 <nowiki>*</nowiki> specifically has been found to further deviate from standard behavior to the extent that originEvents.js cannot support it. The problem, [which you can read about here](http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes), relates to the 'storage' event and iframes.
+
+No remediation effort is planned since this is likely not intended behavior and is anticipated to be addressed in a forthcoming update of Internet Explorer.
+
+<nowiki>*</nowiki>&nbsp;&nbsp;  Last tested version: IE 11.0.9600.16476
 
 Alternatives
 ---

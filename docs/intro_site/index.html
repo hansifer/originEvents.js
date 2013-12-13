@@ -36,6 +36,8 @@
         
         <p style="margin-bottom:6px;"><strong>demo.html</strong> is running in 2 individual iframes below. Click on the buttons to fire events from either page. You can also <a href="demo.html" target="_blank">open demo.html</a> into multiple tabs in your browser for a more convincing demonstration of cross-tab events.</p>
 
+        <div id='ie11Caveat'></div>
+
         <div class="demoDiv demoDiv1">
           <iframe src="demo.html" width="557px" height="202px"></iframe>
           <div class="refreshButton" xtitle="Reload"></div>
@@ -104,6 +106,10 @@
       var iframe = $(this).parent().find('iframe')[0];
       iframe.src = iframe.src;
     });
+
+    if (/\bWindows\b/.test(navigator.userAgent) && /\bTrident\b/.test(navigator.userAgent)  && /\brv:11.0\b/.test(navigator.userAgent)) {
+        $('#ie11Caveat').html('<div class="ie11Caveat">Note that <strong>Internet Explorer 11</strong> has an <a target="_blank" href="http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes">apparent bug</a> preventing originEvents.js from working properly with iframes (last tested version: 11.0.9600.16476) </div>');
+    }
     </script>
   </body>
 </html>
