@@ -125,11 +125,11 @@ Compensating for the first exception is trivial. The second requires reliance on
 
 ####Internet Explorer 11
 
-In addition to the above, Internet Explorer 11 <nowiki>*</nowiki> specifically has been found to further deviate from standard behavior to the extent that originEvents.js cannot support it. The problem, [which you can read about here](http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes), relates to the 'storage' event and iframes.
+In addition to the issues noted above, Internet Explorer 11<nowiki>*</nowiki> specifically has been found to further deviate from standard behavior to the extent that originEvents.js cannot support it. The problem, [which you can read about here](http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes), relates to the 'storage' event and iframes.
 
 No remediation effort is planned since this is likely not intended behavior and is anticipated to be addressed in a forthcoming update of Internet Explorer.
 
-<nowiki>*</nowiki>&nbsp;&nbsp;  Last tested version: IE 11.0.9600.16476
+<nowiki>*</nowiki>&nbsp;&nbsp; _Last tested version: IE 11.0.9600.16476_
 
 Alternatives
 ---
