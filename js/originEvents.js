@@ -36,7 +36,7 @@
 			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
 		}
 
-		retrn false;
+		return false;
 	};
 
 	var emitLocally = function(iType, iMessage, iDatetime, isRemoteEvent) {
