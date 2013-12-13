@@ -24,14 +24,19 @@
 	var storageEventHandler = function(e) {
 		var originEvent;
 
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		e.stopPropagation();
+		e.cancelBubble = true;
+
 		// Checking for "e.newValue" instead of "e.newValue !== null" because IE uses empty string instead of null for e.oldValue and e.newValue when adding and removing storage items, respectively.
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
-			console.dir(e);
-
 			originEvent = snorkel.decodeValue(e.newValue);
 			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
 		}
+
+		retrn false;
 	};
 
 	var emitLocally = function(iType, iMessage, iDatetime, isRemoteEvent) {
@@ -60,7 +65,6 @@
 
 		if (iScope === 'remote' || iScope === 'all') {
 			if (!remoteListenerCount) {
-				console.log('adding storage listener');
 				global.addEventListener('storage', storageEventHandler, false);
 			}
 
