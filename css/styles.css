@@ -229,6 +229,20 @@ section > * {
   cursor: pointer;
 }
 
+.ie11Caveat {
+  color: #CA4242;
+  border: 4px solid #CA4242;
+  background: #FFCACA;
+  border-radius: 4px;
+  padding:7px;
+  margin:15px 0px 5px;
+}
+
+.ie11Caveat > a {
+  color: #CA4242;
+  text-decoration: underline;
+}
+
 @media print, screen and (max-width: 960px) {
   
   div.wrapper {

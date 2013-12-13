@@ -108,8 +108,8 @@
     });
 
     if (/\bWindows\b/.test(navigator.userAgent) && /\bTrident\b/.test(navigator.userAgent)  && /\brv:11.0\b/.test(navigator.userAgent)) {
-        $('#ie11Caveat').html('SDF');
-    } 
+        $('#ie11Caveat').html('<div class="ie11Caveat">Note that <strong>Internet Explorer 11</strong> has an <a href="http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes">apparent bug</a> preventing originEvents.js from working properly with iframes (last tested version: 11.0.9600.16476) </div>');
+    }
     </script>
   </body>
 </html>
