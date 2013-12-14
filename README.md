@@ -125,9 +125,9 @@ Compensating for the first exception is trivial. The second requires reliance on
 
 ####Internet Explorer 11
 
-In addition to the issues noted above, Internet Explorer 11<nowiki>*</nowiki> specifically has been found to further deviate from standard behavior to the extent that originEvents.js cannot support it. The problem, which you can read about [here](http://stackoverflow.com/q/20565508/384062) or [here](http://social.msdn.microsoft.com/Forums/ie/en-US/47d18159-3e21-4ded-89fc-b44e43e5cbe4/ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes?forum=iewebdevelopment), relates to the 'storage' event and iframes.
+In addition to the issues noted above, Internet Explorer 11<nowiki>*</nowiki> specifically has been found to further deviate from standard behavior in a way that is incompatible with the use of originEvents.js within iframes. More information about this issue is available [here](http://stackoverflow.com/q/20565508/384062), [here](http://social.msdn.microsoft.com/Forums/ie/en-US/47d18159-3e21-4ded-89fc-b44e43e5cbe4/ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes?forum=iewebdevelopment), and [here](https://connect.microsoft.com/IE/feedback/details/811546/ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes).
 
-No remediation effort is planned since this is likely not intended behavior and is anticipated to be addressed in a forthcoming update of Internet Explorer.
+No remediation effort is planned since this is likely not intended behavior and is therefore anticipated to be addressed in a forthcoming update of Internet Explorer.
 
 <nowiki>*</nowiki>&nbsp;&nbsp;_Last tested version: IE 11.0.9600.16476_
 
