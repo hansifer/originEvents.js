@@ -28,14 +28,14 @@
 		// Third condition is required for IE only since it raises locally-sourced "storage" events (against spec) in addition to remote ones
 		if (e.newValue && re.test(e.key) && e.key.substring(0, windowKeyName.length) !== windowKeyName) {
 			originEvent = snorkel.decodeValue(e.newValue);
-			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true);
+			emitLocally(originEvent.type, originEvent.message, originEvent.datetime, true, e.key);
 		}
 	};
 
-	var emitLocally = function(iType, iMessage, iDatetime, isRemoteEvent) {
+	var emitLocally = function(iType, iMessage, iDatetime, iIsRemoteEvent, iId) {
 		_.each(listeners[iType], function(handler) {
-			if (handler.s === 'all' || ((handler.s === 'remote' && isRemoteEvent) || (handler.s === 'local' && !isRemoteEvent))) {
-				handler.h(iType, iMessage, iDatetime, isRemoteEvent);
+			if (handler.s === 'all' || ((handler.s === 'remote' && iIsRemoteEvent) || (handler.s === 'local' && !iIsRemoteEvent))) {
+				handler.h(iType, iMessage, iDatetime, iIsRemoteEvent, iId);
 			}
 		});
 	};
@@ -108,12 +108,13 @@
 	};
 
 	// requires context
+	// returns event id
 	var trigger = function(iType, iMessage) {
-		var key;
+		var key = windowKeyName + (incrementor++);
 		var datetime = new Date();
 
 		if (this.canEmitRemotely()) {
-			snorkel.set(key = windowKeyName + (incrementor++), {
+			snorkel.set(key, {
 				// incrementor: ++incrementor,
 				datetime: datetime,
 				type: iType,
@@ -124,8 +125,10 @@
 		}
 
 		if (this.canEmitLocally()) {
-			emitLocally(iType, iMessage, datetime);
+			emitLocally(iType, iMessage, datetime, false, key);
 		}
+
+		return key;
 	};
 
 	// requires context
