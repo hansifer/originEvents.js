@@ -23,14 +23,12 @@
         <p>Trigger and handle events across<br>same-origin tabs and iframes</p>
         <p class="view"><a href="https://github.com/hansifer/originEvents.js">View the Project on GitHub <small>hansifer/originEvents.js</small></a></p>
         <ul>
-          <li><a href="https://github.com/hansifer/originEvents.js/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/hansifer/originEvents.js/tarball/master">Download <strong>TAR Ball</strong></a></li>
-<!--           <li><a href="https://github.com/hansifer/originEvents.js">View On <strong>GitHub</strong></a></li> -->
+          <li><a href="https://raw.github.com/hansifer/originEvents.js/master/dist/standalone/originEvents.min.js"><img src="images/download_black.png" style="vertical-align:middle;padding-right:5px;"/><span style="vertical-align:middle;padding-right:9px;">Download originEvents.min.js</span></a></li>
         </ul>
       </header>
       <section>
 
-        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Introduction</h3>
+        <h3>Introduction</h3>
         
         <p>originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same browser instance to trigger and handle custom events within and across each other.</p>
         
@@ -49,7 +47,18 @@
 
         <br>
 
-        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>API</h3>
+        <h3>Installation</h3>
+
+        <p>Download <strong>originEvents.min.js</strong>, copy it to your project, and include it with a &lt;script&gt; tag like so, for example:<p>
+
+        <div class="highlight highlight-js">
+        <pre>&lt;<span class="nx">script</span> src=<span class="s1">"js/originEvents.min.js"</span>&gt;&lt;/<span class="nx">script</span>&gt;</pre>
+        </div>
+
+        <br>
+
+
+        <h3>API</h3>
     
         <p>Initialize component:</p>
         
@@ -77,16 +86,17 @@
 <span class="nx">originEvents</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'customEvent'</span><span class="p">,</span> <span class="s1">'hello world'</span><span class="p">);</span>
 </pre>
 </div>
+        <p>Full API documentation is available <a href="https://github.com/hansifer/originEvents.js#api" target="_blank">here</a>.</p>
 
         <br>
 
-        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>How Does It Work?</h3>
+        <h3>How Does It Work?</h3>
         
         <p>In a nutshell, originEvents.js broadcasts events to remote tabs by setting a temporary localStorage item with a custom event object. Such an event is received by all same-origin tabs, iframes, and popups via the <strong>storage</strong> event of <a href="http://www.w3.org/TR/webstorage/" target="_blank">Web Storage</a>. Local (ie, same global context) events are implemented through conventional means. Visit <a href="https://github.com/hansifer/originEvents.js" target="_blank">the project's GitHub page</a> for more technical details.</p>
 
         <br>
 
-        <h3><a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Contributing</h3>
+        <h3>Contributing</h3>
         
         <p>originEvents.js was initially created as a proof-of-concept for a <a href="http://hansifer.github.io/snorkel.js/" target="_blank">snorkel.js</a> feature. Critical feedback, ideas, and pull requests are welcome. </p>
 
@@ -99,6 +109,7 @@
         </p>
       </footer>
     </div>
+    <script src="js/originEvents.js"></script>
     <script src="js/scale.fix.js"></script>
     <script src="js/jquery-2.0.3.min.js"></script>
     <script>
@@ -111,5 +122,6 @@
         $('#ie11Caveat').html('<div class="ie11Caveat">Note that <strong>Internet Explorer 11</strong> has an <a target="_blank" href="http://stackoverflow.com/questions/20565508/why-do-ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes">apparent bug</a> preventing originEvents.js from working properly with iframes (last tested version: 11.0.9600.16476) </div>');
     }
     </script>
+    <script>var originEvents = originEventsInit();</script>
   </body>
 </html>
