@@ -1,20 +1,36 @@
-![](https://raw.github.com/hansifer/originEvents.js/gh-pages/images/logo_red.png)
+![](https://raw.github.com/hansifer/originEvents.js/master/docs/intro_site/images/logo_red.png)
 
 ### Trigger and handle events across same-origin tabs and iframes
 
-Introduction
----
+[Introduction](#introduction)
+------------
 
 originEvents.js is a tiny JavaScript library that allows same-origin web pages (tabs, iframes, popups) running within the same (possibly offline) browser instance to trigger and handle custom events within and across each other. [**See it in action**](http://hansifer.github.io/originEvents.js/).
 
 originEvents.js was initially created as a proof-of-concept for a [snorkel.js](http://hansifer.github.io/snorkel.js/) feature. Critical feedback, ideas, and pull requests are welcome.
 
-How Does It Work?
----
+
+[How Does It Work?](#how-does-it-work)
+-----------------
 
 In a nutshell, originEvents.js broadcasts events across tabs by setting a temporary localStorage item with a custom event object. Such an event is received by all same-origin tabs, iframes, and popups via the 'storage' event of [Web Storage](http://www.w3.org/TR/webstorage/). Local (ie, same global context) events are implemented with a conventional approach. For additional technical details, [read on below](#technical-notes).
 
-API
+
+[Installation](#installation)
+------------
+
+Download [**originEvents.min.js**](https://raw.github.com/hansifer/originEvents.js/master/dist/standalone/originEvents.min.js), copy it to your project, and include it with a `<script>` tag like so, for example:
+```html
+<script src="js/originEvents.min.js"></script>
+```
+In your code, initialize originEvents using `originEventsInit()`, which returns an object that can subsequently be used to access originEvents's features:
+```js
+var originEvents = window.originEventsInit();
+```
+If you prefer a non-minified version, you can download [**originEvents.js**](https://raw.github.com/hansifer/originEvents.js/master/dist/standalone/originEvents.js) instead.
+
+
+[API](#api)
 ---
 
 ###window.originEventsInit ([`boolean` *canEmitLocally*, `boolean` *canEmitRemotely*])
@@ -67,16 +83,17 @@ originEvents.canEmitRemotely();
 ```
 <nowiki>*</nowiki>&nbsp;&nbsp;  `any` can be a `number`, `string`, `boolean`, `Date`, `RegExp`, `null`, `undefined`, `object`, `array` or arbitrarily-nested object/array of such.
 
-Technical Notes
----
+
+[Technical Notes](#technical-notes)
+---------------
 
 ###Size
 
-Original:  ~ 4.8k
-
-Minified:  ~ 1.6k
-
-Gzipped:   ~ 0.4k
+|          | Dependent Version | Standalone Version |
+| :------- | ----------------: | -----------------: |
+| Original |              5 kB |            57.7 kB |
+| Minified |            1.8 kB |            17.2 kB |
+| Gzipped  |         459 bytes |             3.8 kB |
 
 ###Dependencies
 
@@ -131,8 +148,9 @@ No remediation effort is planned since this is likely not intended behavior and 
 
 <nowiki>*</nowiki>&nbsp;&nbsp;_Last tested version: IE 11.0.9600.16476_
 
-Alternatives
----
+
+[Alternatives](#alternatives)
+------------
 
 JavaScript has supported *targeted* communication across same-origin iframes and popups for some time. More recently, [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** targeted communication as well. 
 

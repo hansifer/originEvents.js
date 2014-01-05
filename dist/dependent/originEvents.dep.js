@@ -1,7 +1,11 @@
-//     originEvents.js 0.1.0
-//     http://originEventsJS.org
-//     (c) 2013 Hans Meyer
-//     originEvents.js may be freely distributed under the MIT license.
+// originEvents.js 0.1.0
+// https://github.com/hansifer/originEvents.js
+// (c) 2013-2014 Hans Meyer; Licensed MIT
+//
+// Depends:
+// underscore (https://github.com/jashkenas/underscore)
+// node-uuid (https://github.com/broofa/node-uuid)
+// snorkel (https://github.com/hansifer/snorkel.js)
 
 (function(undefined) {
 	var global = this;
