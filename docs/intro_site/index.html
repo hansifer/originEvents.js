@@ -52,40 +52,34 @@
         <p>Download <strong>originEvents.min.js</strong>, copy it to your project, and include it with a &lt;script&gt; tag like so, for example:<p>
 
         <div class="highlight highlight-js">
-        <pre>&lt;<span class="nx">script</span> src=<span class="s1">"js/originEvents.min.js"</span>&gt;&lt;/<span class="nx">script</span>&gt;</pre>
+          <pre>&lt;<span class="nx">script</span> src=<span class="s1">"js/originEvents.min.js"</span>&gt;&lt;/<span class="nx">script</span>&gt;</pre>
         </div>
 
         <br>
-
 
         <h3>API</h3>
     
         <p>Initialize component:</p>
         
-<div class="highlight highlight-js">
-<pre>
-<span class="kd">var</span> <span class="nx">originEvents</span> <span class="o">=</span> <span class="nx">window.originEventsInit</span><span class="p">();</span>
-</pre>
-</div>
+        <div class="highlight highlight-js">
+          <pre><span class="kd">var</span> <span class="nx">originEvents</span> <span class="o">=</span> <span class="nx">window.originEventsInit</span><span class="p">();</span></pre>
+        </div>
 
         <p>Add listener for a custom event:</p>
         
-<div class="highlight highlight-js">
-<pre>
-<span class="nx">originEvents</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'customEvent'</span><span class="p">,</span> 
+        <div class="highlight highlight-js">
+          <pre><span class="nx">originEvents</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'customEvent'</span><span class="p">,</span> 
   <span class="kd">function</span> <span class="p">(</span><span class="nx">eventType</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">timeStamp</span><span class="p">,</span> <span class="nx">isRemote</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// handle custom event</span>
-  <span class="p">});</span>
-</pre>
-</div>
+  <span class="p">});</span></pre>
+        </div>
 
         <p>Trigger custom event with a message:</p>
         
-<div class="highlight highlight-js">
-<pre>
-<span class="nx">originEvents</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'customEvent'</span><span class="p">,</span> <span class="s1">'hello world'</span><span class="p">);</span>
-</pre>
-</div>
+        <div class="highlight highlight-js">
+          <pre><span class="nx">originEvents</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'customEvent'</span><span class="p">,</span> <span class="s1">'hello world'</span><span class="p">);</span></pre>
+        </div>
+        
         <p>Full API documentation is available <a href="https://github.com/hansifer/originEvents.js#api" target="_blank">here</a>.</p>
 
         <br>
@@ -98,7 +92,7 @@
 
         <h3>Contributing</h3>
         
-        <p>originEvents.js was initially created as a proof-of-concept for a <a href="http://hansifer.github.io/snorkel.js/" target="_blank">snorkel.js</a> feature. Critical feedback, ideas, and pull requests are welcome. </p>
+        <p>originEvents.js was initially created as a proof-of-concept for a <a href="http://hansifer.github.io/snorkel.js/" target="_blank">snorkel.js</a> feature. Critical feedback, ideas, and pull requests are welcome.</p>
 
       </section>
       <footer>
@@ -109,6 +103,7 @@
         </p>
       </footer>
     </div>
+    
     <script src="js/originEvents.js"></script>
     <script src="js/scale.fix.js"></script>
     <script src="js/jquery-2.0.3.min.js"></script>
