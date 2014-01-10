@@ -2,6 +2,7 @@
 
 ### Trigger and handle events across same-origin tabs and iframes
 
+
 [Introduction](#introduction)
 ------------
 
@@ -101,7 +102,7 @@ originEvents.canEmitRemotely();
 -	[localStorage](http://caniuse.com/#search=localStorage)
 -	[JSON](http://caniuse.com/#search=JSON)
 
-####Libraries
+####Libraries (Dependent Version)
 -	[underscore](https://github.com/jashkenas/underscore)
 -	[snorkel.js](https://github.com/hansifer/snorkel.js)
 -	[node-uuid](https://github.com/broofa/node-uuid)
@@ -147,6 +148,15 @@ In addition to the issues noted above, Internet Explorer 11<nowiki>*</nowiki> sp
 No remediation effort is planned since this is likely not intended behavior and is therefore anticipated to be addressed in a forthcoming update of Internet Explorer.
 
 <nowiki>*</nowiki>&nbsp;&nbsp;_Last tested version: IE 11.0.9600.16476_
+
+
+[Attribution](#attribution)
+
+originEvents.js uses the following libraries:
+
+-	[underscore](https://github.com/jashkenas/underscore)
+-	[snorkel.js](https://github.com/hansifer/snorkel.js)
+-	[node-uuid](https://github.com/broofa/node-uuid)
 
 
 [Alternatives](#alternatives)
