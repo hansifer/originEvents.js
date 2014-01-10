@@ -151,6 +151,7 @@ No remediation effort is planned since this is likely not intended behavior and 
 
 
 [Attribution](#attribution)
+-----------
 
 originEvents.js uses the following libraries:
 
