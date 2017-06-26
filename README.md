@@ -34,7 +34,7 @@ If you prefer a non-minified version, you can download [**originEvents.js**](htt
 [API](#api)
 ---
 
-###window.originEventsInit ([`boolean` *canEmitLocally*, `boolean` *canEmitRemotely*])
+### window.originEventsInit ([`boolean` *canEmitLocally*, `boolean` *canEmitRemotely*])
 Initializes and returns an originEvents context object to use for further API calls. Default value for each option is `true`.
 ```js
 // return a default-initialized originEvents context object
@@ -44,7 +44,7 @@ var originEvents = window.originEventsInit();
 // only to OTHER same-origin tabs/iframes/popups
 var originEvents = window.originEventsInit(false);  
 ```
-###on (`string` *eventType*, `function` *handler* [, `string` *scope*])
+### on (`string` *eventType*, `function` *handler* [, `string` *scope*])
 Adds a handler for an *eventType*. Optional *scope* of 'local' or 'remote' limits the types of events this handler processes.
 ```js
 originEvents.on('registration_complete',
@@ -52,19 +52,19 @@ originEvents.on('registration_complete',
       alert('Thanks for signing up, ' + iMessage.username); 
    });
 ```
-###off (`string` *eventType* [, `function` *handler*])
+### off (`string` *eventType* [, `function` *handler*])
 Removes a handler for an *eventType*. If *handler* is not specified, all handlers for *eventType* are removed.
 ```js
 originEvents.off('registration_complete', someFunctionName);
 originEvents.off('registration_complete');  // remove all handlers for eventType
 ```
-###trigger (`string` *eventType* [, `any` *message*])
+### trigger (`string` *eventType* [, `any` *message*])
 Triggers an event of *eventType*, passing *message*.
 ```js
 originEvents.trigger('registration_complete', 
    { username: 'lorem', email: 'lorem@ipsum.com' });
 ```
-###canEmitLocally ([`boolean` *canEmitLocally*])
+### canEmitLocally ([`boolean` *canEmitLocally*])
 Gets or sets whether the associated originEvents context object emits locally-triggered events locally (ie, within the same global context).
 ```js
 // prevent locally-triggered events from being emitted locally
@@ -73,7 +73,7 @@ originEvents.canEmitLocally(false);
 // returns true or false
 originEvents.canEmitLocally();       
 ```
-###canEmitRemotely ([`boolean` *canEmitRemotely*])
+### canEmitRemotely ([`boolean` *canEmitRemotely*])
 Gets or sets whether the associated originEvents context object emits locally-triggered events to remote tabs/iframes/popups.
 ```js
 // prevent locally-triggered events from being emitted to remote tabs/iframes/popups
@@ -88,36 +88,36 @@ originEvents.canEmitRemotely();
 [Technical Notes](#technical-notes)
 ---------------
 
-###Size
+### Size
 
 |          | Dependent Version | Standalone Version |
 | :------- | ----------------: | -----------------: |
-| Original |              5 kB |            57.7 kB |
-| Minified |            1.8 kB |            17.2 kB |
-| Gzipped  |         459 bytes |             3.8 kB |
+| Original |            5.5 kB |            83.2 kB |
+| Minified |              2 kB |            23.1 kB |
+| Gzipped  |         492 bytes |             5.3 kB |
 
-###Dependencies
+### Dependencies
 
-####Browser Features
+#### Browser Features
 -	[localStorage](http://caniuse.com/#search=localStorage)
 -	[JSON](http://caniuse.com/#search=JSON)
 
-####Libraries (Dependent Version)
+#### Libraries (Dependent Version)
 -	[underscore](https://github.com/jashkenas/underscore)
 -	[snorkel.js](https://github.com/hansifer/snorkel.js)
 -	[node-uuid](https://github.com/broofa/node-uuid)
 
-###Mechanism
+### Mechanism
 
-####Remote Events
+#### Remote Events
 
 When an event is triggered by an application via `originEvents.trigger()`, originEvents.js uses [snorkel.js](http://hansifer.github.io/snorkel.js/) to set a custom event object (ie, an originEvent) that includes the event type, timestamp, and message (which can be a JavaScript primitive, Date, RegExp, null, undefined, or an object/array comprising such). This triggers the 'storage' event and queues up any associated handler calls in each same-origin global context (tab, iframe, popup) that exists in the current browser instance. The snorkel set is immediately followed by a localStorage.removeItem() call to clean up the dispatched event, which in most modern browsers prevents associated disk I/O.
 
-####Local Events
+#### Local Events
 
 Local (ie, same global context) events are implemented similarly to many event libraries (ie, trigger leads to direct handler call).
 
-####Isn’t This a Hack?
+#### Isn’t This a Hack?
 
 Yes. Yes it is.
 
@@ -125,13 +125,13 @@ But only in the sense that we're making use of an established browser facility i
 
 Also, there doesn't seem to be a current alternative providing similar features. Particularly, offline cross-tab events (ie, non-targeted messages).
 
-####Isn’t This a Performance Liability?
+#### Isn’t This a Performance Liability?
 
 Not in most cases. Because of the way originEvents.js leverages localStorage, it never incurs disk I/O. The exception to this that was found during testing is IE10, which writes localStorage sets immediately (to an xml file). This produces a perceptible lag between triggering and handling a cross-tab event that can be observed [here](http://hansifer.github.io/originEvents.js/).
 
 For more detail on localStorage performance, there's [this pretty good article by Nicholas Zakas](http://calendar.perfplanet.com/2012/is-localstorage-performance-a-problem/).
 
-###Internet Explorer Support
+### Internet Explorer Support
 
 IE goes against the 'storage' event [spec](http://www.w3.org/TR/webstorage/) in two ways that we need to make special accommodation for:
 
@@ -141,13 +141,21 @@ IE goes against the 'storage' event [spec](http://www.w3.org/TR/webstorage/) in 
 
 Compensating for the first exception is trivial. The second requires reliance on a global context identification scheme such that we can distinguish locally-initiated events from remote ones in the 'storage' event handler. We’re already using RFC4122 v4 UUIDs to generate an originEvent storage key name for use by a `window`, so we’ll use this key name to filter locally-initiated events passing through the 'storage' event handler. Making use of UUIDs to establish `window` identity is not bullet-proof, but operationally it’s good enough, at least for now.
 
-####Internet Explorer 11
+#### Internet Explorer 11
 
 In addition to the issues noted above, Internet Explorer 11<nowiki>*</nowiki> specifically has been found to further deviate from standard behavior in a way that is incompatible with the use of originEvents.js within iframes. More information about this issue is available [here](http://stackoverflow.com/q/20565508/384062), [here](http://social.msdn.microsoft.com/Forums/ie/en-US/47d18159-3e21-4ded-89fc-b44e43e5cbe4/ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes?forum=iewebdevelopment), and [here](https://connect.microsoft.com/IE/feedback/details/811546/ie11-localstorage-events-fire-twice-or-not-at-all-in-iframes).
 
 No remediation effort is planned since this is likely not intended behavior and is therefore anticipated to be addressed in a forthcoming update of Internet Explorer.
 
 <nowiki>*</nowiki>&nbsp;&nbsp;_Last tested version: IE 11.0.9600.16476_
+
+
+[Alternatives](#alternatives)
+------------
+
+JavaScript has supported *targeted* communication across same-origin iframes and popups for some time. More recently, [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** targeted communication as well. 
+
+While the established approaches work fine for communicating across iframes/frames and windows created by `window.open()`, their reliance on `window` "handles" keeps browser **tabs** out of their reach.
 
 
 [Attribution](#attribution)
@@ -158,11 +166,3 @@ originEvents.js uses the following libraries:
 -	[underscore](https://github.com/jashkenas/underscore)
 -	[snorkel.js](https://github.com/hansifer/snorkel.js)
 -	[node-uuid](https://github.com/broofa/node-uuid)
-
-
-[Alternatives](#alternatives)
-------------
-
-JavaScript has supported *targeted* communication across same-origin iframes and popups for some time. More recently, [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage) has enabled **cross-origin** targeted communication as well. 
-
-While the established approaches work fine for communicating across iframes/frames and windows created by `window.open()`, their reliance on `window` "handles" keeps browser **tabs** out of their reach.
